@@ -1,6 +1,6 @@
 ![](banner.jpg?raw=true "Logo")
 
-Karamba3D_tests
+K3D_tests
 ===============
 
 These are unit-tests for Karamba3D. 
