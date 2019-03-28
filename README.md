@@ -11,7 +11,7 @@ Deployment
 In order to run the tests download 'karamba.dll' from https://tinyurl.com/k3d-tests and copy it 
 to '...\KarambaCommon_tests\bin\Debug' and '...\KarambaCommon_tests_GH\bin\Debug'.
 
-In case it is not yet present on your computer also add 'libiomp5md.dll' to the Debug directories.
+In case it is not already present on your computer also add 'libiomp5md.dll' to the Debug directories.
 
 Contributing
 ------------
