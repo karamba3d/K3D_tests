@@ -78,7 +78,7 @@ namespace KarambaCommon.Tests.Loads
 
             ThIAnalyze.solve(model, out var outMaxDisp, out var outG, out var outComp, out var warning, out model);
 
-            Assert.AreEqual(outMaxDisp[0], 2.8223745365824779, 1E-5);
+            Assert.AreEqual(outMaxDisp[0], 2.8232103119331837, 1E-5);
             // Assert.AreEqual(1, 1, 1E-8);
         }
     }

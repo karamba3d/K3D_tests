@@ -38,9 +38,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KarambaCommon, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Resources\Karamba3d\KarambaCommon.dll</HintPath>
+    <Reference Include="KarambaCommon">
+      <HintPath>..\..\K3D_Tests\Resources\Karamba3d\KarambaCommon.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
@@ -63,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms\Buckling_tests.cs" />
+    <Compile Include="Algorithms\NaturalVibes_tests.cs" />
     <Compile Include="Algorithms\OptiReinf_tests.cs" />
     <Compile Include="Elements\DisassembleElement_tests.cs" />
     <Compile Include="Elements\OrientateElement_tests.cs" />

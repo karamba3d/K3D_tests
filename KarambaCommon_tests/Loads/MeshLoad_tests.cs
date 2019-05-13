@@ -74,7 +74,7 @@ namespace KarambaCommon.Tests.Loads
             
             // calculate the model
             model = k3d.Algorithms.AnalyzeThI(model, out var outMaxDisp, out var outG, out var outComp, out var warning);
-            Assert.AreEqual(outMaxDisp[0], 2.822374553471779, 1E-5);
+            Assert.AreEqual(outMaxDisp[0], 2.8232103119228276, 1E-5);
         }
 // #endif
     }
