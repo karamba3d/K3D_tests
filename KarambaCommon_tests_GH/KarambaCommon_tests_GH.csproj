@@ -38,20 +38,18 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KarambaCommon">
-      <HintPath>..\..\K3D_Tests\Resources\Karamba3d\KarambaCommon.dll</HintPath>
+    <Reference Include="KarambaCommon, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\KarambaCommon.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="nunitlite, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnitLite.3.11.0\lib\net45\nunitlite.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Rhino3dmIO, Version=6.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Rhino3dmIO.Desktop.6.11.18348.17061\lib\net45\Rhino3dmIO.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

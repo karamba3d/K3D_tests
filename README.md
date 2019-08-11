@@ -8,10 +8,7 @@ These are unit-tests for Karamba3D.
 Deployment
 ----------
 
-In order to run the tests download 'karamba.dll' from https://tinyurl.com/k3d-tests-190513 and copy it 
-to '...\KarambaCommon_tests\bin\Debug' and '...\KarambaCommon_tests_GH\bin\Debug'.
-
-In case it is not already present on your computer also add 'libiomp5md.dll' to the Debug directories.
+In order to run the tests download 'karamba.dll', 'karambaCommon.dll' and 'libiomp5md.dll' from https://tinyurl.com/k3d-tests-190811 and copy these files to '...\KarambaCommon_tests\bin\Debug' and '...\KarambaCommon_tests_GH\bin\Debug'.
 
 Contributing
 ------------

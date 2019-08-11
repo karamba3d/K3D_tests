@@ -32,7 +32,7 @@ namespace KarambaCommon.Tests.Algorithms
             mesh.AddFace(new Face3(1, 2, 3));
 
             var crosec = k3d.CroSec.ReinforcedConcreteStandardShellConst(25, 0, null, new List<double> { 4, 4, -4, -4 }, 0);
-            var shells = k3d.Part.ShellToMesh(new List<Mesh3> { mesh }, null, new List<CroSec> { crosec }, logger, out var nodes);
+            var shells = k3d.Part.MeshToShell(new List<Mesh3> { mesh }, null, new List<CroSec> { crosec }, logger, out var nodes);
 
             // create supports
             var supportConditions = new List<bool>() { true, true, true, true, true, true };

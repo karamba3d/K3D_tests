@@ -27,7 +27,7 @@ namespace KarambaCommon.Tests.Algorithms
             var p1 = new Point3(length, 0, 0);
             var axis = new Line3(p0, p1);
 
-            var resourcePath = Path.Combine(Utils.PluginPath(), @"..\..\Resources\");
+            var resourcePath = Path.Combine(Utils.PluginPathExe(), @"..\..\Resources\");
 
             // get a material from the material table in the folder 'Resources'
             var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
@@ -75,7 +75,7 @@ namespace KarambaCommon.Tests.Algorithms
                 out List<double> nat_frequencies, out List<double> modal_masses, out List<Vector3> participation_facs,
                 out List<double> participation_facs_disp, out model);
 
-            Assert.AreEqual(nat_frequencies[0], 8.98282, 1e-4);
+            Assert.AreEqual(nat_frequencies[0], 8.9828263788644716, 1e-8);
         }
 #endif
     }

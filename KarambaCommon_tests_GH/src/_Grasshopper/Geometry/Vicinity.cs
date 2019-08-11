@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using feb;
 using Rhino.Geometry;
+using Mesh = Rhino.Geometry.Mesh;
 
 namespace Karamba.GHopper.Geometry
 {
@@ -136,6 +138,39 @@ namespace Karamba.GHopper.Geometry
 
             }
             return false;
+        }
+
+        public override string ToString()
+        {
+            var res = new List<string>();
+            if (to_points_.Count != 0)
+            {
+                res.Add("points");
+            }
+            if (to_curves_.Count != 0)
+            {
+                res.Add("curves");
+            }
+            if (to_lines_.Count != 0)
+            {
+                res.Add("lines");
+            }
+            if (to_planes_.Count != 0)
+            {
+                res.Add("planes");
+            }
+            if (to_breps_.Count != 0)
+            {
+                res.Add("breps");
+            }
+            if (to_meshes_.Count != 0)
+            {
+                res.Add("meshes");
+            }
+
+            if (res.Count == 0) return "";
+
+            return "close to " + string.Join(", ", res);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace KarambaCommon.Tests.Loads
     [TestFixture]
     public class MeshLoad_tests
     {
-// #if ALL_TESTS
+#if ALL_TESTS
         [Test]
         public void MeshLoadProfiling()
         {
@@ -76,6 +76,36 @@ namespace KarambaCommon.Tests.Loads
             model = k3d.Algorithms.AnalyzeThI(model, out var outMaxDisp, out var outG, out var outComp, out var warning);
             Assert.AreEqual(outMaxDisp[0], 2.8232103119228276, 1E-5);
         }
-// #endif
+#endif
+
+#if ALL_TESTS
+        [Test]
+        public void MeshLoad_on_QuadMesh()
+        {
+            var k3d = new Toolkit();
+            var logger = new MessageLogger();
+
+            var p0 = new Point3(0, 0, 0);
+            var p1 = new Point3(1, 0, 0);
+            var p2 = new Point3(1, 1, 0);
+            var p3 = new Point3(0, 1, 0);
+            var mesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, 
+                new List<Face3>() { new Face3(0, 1, 2, 3)});
+
+            // create a mesh load
+            var load = k3d.Load.MeshLoad(new List<Vector3>() { new Vector3(0, 0, 1) }, mesh);
+
+            // create a shell
+            var shells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, 
+                null, null, logger, out var outPoints);
+
+            // assemble the model
+            var model = k3d.Model.AssembleModel(shells, null, new List<Load>{load},
+                out var info, out var mass, out var cog, out var message, out var warning);
+
+            Assert.AreEqual(0.25, model.mloads[0].model_unit_loads.max_vertex_load, 1e-5);
+
+        }
+#endif
     }
 }

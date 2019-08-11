@@ -16,23 +16,21 @@ namespace KarambaCommon.Tests.License
             var has_expired = Karamba.Licenses.License.has_expired();
             Assert.IsFalse(has_expired);
             var license_type = Karamba.Licenses.License.licenseType();
-            Assert.True(license_type == feb.License.LicenseType.lic_trial || license_type == feb.License.LicenseType.lic_student);
+            Assert.True(license_type == feb.License.LicenseType.lic_trial ||
+                        license_type == feb.License.LicenseType.lic_developer ||
+                        license_type == feb.License.LicenseType.lic_student);
 
             // load a new license 
             Karamba.Licenses.License.unload();
 
-            var dir = Directory.GetCurrentDirectory();
-
-            Assert.True(File.Exists(@"..\..\..\Resources\License\license_TRIAL.lic") && File.Exists(@"..\..\..\Resources\License\public.key"),
-                @"In order that the tests work place 'license_TRIAL.lic' and 'public.key' under '..\Resources\License\'");
-
+            Assert.True(File.Exists(@"C:\temp\LicenseTest\license.lic") && File.Exists(@"C:\temp\LicenseTest\public.key"),
+                @"In order that the tests work place 'license.lic' and 'public.key' under 'C:\temp\LicenseTest\'");
+            
             // set the path to where you saved your license file
-            Karamba.Licenses.License.getLicense(@"..\..\..\Resources\License\license_FREE.lic", @"..\..\..\Resources\License\public.key");
+            Karamba.Licenses.License.getLicense(@"C:\temp\LicenseTest\license.lic", @"C:\temp\LicenseTest\public.key");
             license_type = Karamba.Licenses.License.licenseType();
-            Assert.True(license_type == feb.License.LicenseType.lic_student 
-                        || license_type == feb.License.LicenseType.lic_developer
-                        || license_type == feb.License.LicenseType.lic_trial
-                        || license_type == feb.License.LicenseType.lic_free);
+            Assert.True(license_type == feb.License.LicenseType.lic_student || license_type == feb.License.LicenseType.lic_developer);
+            // Assert.AreEqual(license_type, feb.License.LicenseType.lic_trial);
         }
 #endif
     }

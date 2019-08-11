@@ -48,8 +48,8 @@ namespace KarambaCommon.Tests.Model
 
             // create a shell
             var outLogger = new MessageLogger();
-            var outBuilderShells = k3d.Part.ShellToMesh(new List<Mesh3>() { mesh.Convert() }, new List<string>(), new List<CroSec>(),
-                 outLogger, out List<Point3> outPoints);
+            var outBuilderShells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh.Convert() }, new List<string>(), new List<CroSec>(),
+                 outLogger, out var outPoints);
 
             // create two supports
             var support1 = k3d.Support.Support(new Point3(0, -0.5, 0), k3d.Support.SupportFixedConditions);

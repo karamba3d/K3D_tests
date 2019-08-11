@@ -21,6 +21,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
+using Karamba.Utilities;
 using NUnitLite;
 using System;
 
@@ -37,6 +38,15 @@ namespace NUnitLite.Tests
         /// <param name="args"></param>
         public static int Main(string[] args)
         {
+            // set the system of physical units to SI
+            INIReader.ClearSingleton();
+            UnitsConversionFactories.ClearSingleton();
+
+            var ini = INIReader.Instance();
+            ini.Values["UnitsSystem"] = "SI";
+            ini.Values["gravity"] = "10.0";
+            
+            // run the tests
             var res = new AutoRun().Execute(args);
             Console.WriteLine("Press any key to close");
             Console.ReadKey();

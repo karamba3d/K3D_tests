@@ -38,17 +38,15 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KarambaCommon">
-      <HintPath>..\..\K3D_Tests\Resources\Karamba3d\KarambaCommon.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="karambaCommon, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\karambaCommon.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="nunitlite, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnitLite.3.11.0\lib\net45\nunitlite.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,23 +62,31 @@
     <Compile Include="Algorithms\Buckling_tests.cs" />
     <Compile Include="Algorithms\NaturalVibes_tests.cs" />
     <Compile Include="Algorithms\OptiReinf_tests.cs" />
+    <Compile Include="CrossSections\CroSecValues.cs" />
+    <Compile Include="CrossSections\DisassembleCroSec.cs" />
+    <Compile Include="Utilities\UnitsConversion\Cantilever_tests.cs" />
+    <Compile Include="Utilities\UnitsConversion\ReadCrossSectionFromTable_tests.cs" />
+    <Compile Include="CrossSections\Serialization.cs" />
     <Compile Include="Elements\DisassembleElement_tests.cs" />
     <Compile Include="Elements\OrientateElement_tests.cs" />
+    <Compile Include="Materials\Materials_tests.cs" />
+    <Compile Include="Models\Disassemble_tests.cs" />
     <Compile Include="Models\ModifyModel_tests.cs" />
     <Compile Include="Elements\LocalCoordinateSystems_tests.cs" />
     <Compile Include="Geometry\Vector3_tests.cs" />
     <Compile Include="Licenses\License_tests.cs" />
     <Compile Include="Loads\MeshLoad_tests.cs" />
     <Compile Include="Models\FindSupportNodes_tests.cs" />
+    <Compile Include="Utilities\UnitsConversion\Mass_tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Results\ReinforcementStress_tests.cs" />
+    <Compile Include="Utilities\Mappings\MappingDisassembleAssemble.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

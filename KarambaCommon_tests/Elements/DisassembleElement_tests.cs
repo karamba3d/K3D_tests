@@ -77,9 +77,11 @@ namespace KarambaCommon.Tests.Elements
                 out var out_points);
 
             var alpha = 45.0.ToRad();
-            beams[0].Ori.XOri = new Vector3(-1, 0, 0);
-            beams[0].Ori.ZOri = new Vector3(0, 0, -1);
-            beams[0].Ori.Alpha = alpha;
+            var ori = beams[0].Ori.Writer;
+            ori.XOri = new Vector3(-1, 0, 0);
+            ori.ZOri = new Vector3(0, 0, -1);
+            ori.Alpha = alpha;
+            beams[0].Ori = ori.Reader;
 
             var coosys = beams[0].Ori.CooSys(beams[0].Pos);
             var n0 = coosys[0];
@@ -108,7 +110,7 @@ namespace KarambaCommon.Tests.Elements
             var id = "s1";
 
             var k3d = new Toolkit();
-            var outShells = k3d.Part.ShellToMesh(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
+            var outShells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
 
             var coosys0 = outShells[0].Ori.CooSys(outShells[0].Pos, 0);
             var n0_0 = coosys0[0];
@@ -142,16 +144,17 @@ namespace KarambaCommon.Tests.Elements
             var id = "s1";
 
             var k3d = new Toolkit();
-            var outShells = k3d.Part.ShellToMesh(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
+            var outShells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
 
             var alpha_rad = 20.0.ToRad();
             var c20 = Math.Cos(alpha_rad);
             var s20 = Math.Cos(alpha_rad);
 
-            outShells[0].Ori.XOriList = new List<Vector3> { new Vector3(c20, s20, 0), new Vector3(-c20, -s20, 0) };
-
+            var ori = outShells[0].Ori.Writer;
+            ori.XOriList = new List<Vector3> { new Vector3(c20, s20, 0), new Vector3(-c20, -s20, 0) };
             // at the moment angles alpha take no effect in case of shells
-            outShells[0].Ori.AlphaList = new List<double>() { alpha_rad, 0 };
+            ori.AlphaList = new List<double>() { alpha_rad, 0 };
+            outShells[0].Ori = ori.Reader;
 
             var coosys0 = outShells[0].Ori.CooSys(outShells[0].Pos, 0);
             var n0_0 = coosys0[0];
@@ -179,7 +182,7 @@ namespace KarambaCommon.Tests.Elements
             var id = "s1";
 
             var k3d = new Toolkit();
-            var outShells = k3d.Part.ShellToMesh(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
+            var outShells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
 
             var coosys0 = outShells[0].Ori.CooSys(outShells[0].Pos, 0);
             var n0_0 = coosys0[0];

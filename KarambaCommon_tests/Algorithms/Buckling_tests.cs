@@ -26,7 +26,7 @@ namespace KarambaCommon.Tests.Algorithms
             var p1 = new Point3(0, 0, length);
             var axis = new Line3(p0, p1);
 
-            var resourcePath = Path.Combine(Utils.PluginPath(), @"..\..\Resources\");
+            var resourcePath = Path.Combine(Utils.PluginPathExe(), @"..\..\Resources\");
 
             // get a material from the material table in the folder 'Resources'
             var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
