@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace KarambaCommon.Tests.Materials
     [TestFixture]
     public class Materials_tests
     {
-        #if ALL_TESTS
+#if ALL_TESTS
         [Test]
         public void Assemble_Material()
         {
@@ -42,7 +43,8 @@ namespace KarambaCommon.Tests.Materials
 
             // create a material
             var gamma = 0.0;
-            var materials = new List<FemMaterial> { new Karamba.Materials.FemMaterial_Isotrop("family", "name", 21000, 10000, 10000, gamma, 10, 0, null) };
+            var materials = new List<FemMaterial> { new Karamba.Materials.FemMaterial_Isotrop("family", "name", 210000000, 10000, 10000, gamma, 10, 
+                -10, FemMaterial.FlowHypothesis.mises, 1e-4, null) };
             materials[0].AddBeamId(""); // make material reference all elements
 
             // assemble the model
@@ -51,6 +53,23 @@ namespace KarambaCommon.Tests.Materials
             null, null, null, 0.005, null, materials);
 
             Assert.AreEqual(mass, 0, 1e-5);
+        }
+#endif
+#if ALL_TESTS
+
+        [Test]
+        public void Read_MaterialTable()
+        {
+            var k3d = new Toolkit();
+            var logger = new MessageLogger();
+
+            // get a material from the material table in the folder 'Resources'
+            var resourcePath = @"";
+            var materialPath = Path.Combine(resourcePath, "Materials/MaterialProperties.csv");
+            var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
+            var material = inMaterials.Find(x => x.name == "Steel");
+            
+            Assert.AreEqual(material.alphaT(), 1.2e-5, 1e-8);
         }
 #endif
     }

@@ -40,7 +40,7 @@ namespace NUnitLite.Tests
         {
             // set the system of physical units to SI
             INIReader.ClearSingleton();
-            UnitsConversionFactories.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
 
             var ini = INIReader.Instance();
             ini.Values["UnitsSystem"] = "SI";

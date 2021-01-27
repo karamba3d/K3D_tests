@@ -332,3 +332,6 @@ ASALocalRun/
 *.md#
 /MF/net45
 *.swp
+
+Resources/*
+testdata/*

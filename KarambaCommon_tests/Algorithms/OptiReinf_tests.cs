@@ -53,15 +53,14 @@ namespace KarambaCommon.Tests.Algorithms
             var model = k3d.Model.AssembleModel(shells, supports, loads,
                 out var info, out var mass, out var cog, out var message, out var warning);
 
-            model = k3d.Algorithms.OptiReinf(model,
-            out List<double> maxDisplacements, out List<double> compliances, out message, out double reinfMass);
+            model = k3d.Algorithms.OptiReinf(model, out var maxDisplacements, out var compliances, out message, out var reinfMass);
 
-            k3d.Results.ShellForcesLocal(model, null, 0,
+            k3d.Results.ShellForcesLocal(model, null, "0",
                 out var nxx, out var nyy, out var nxy, 
                 out var mxx, out var myy, out var mxy, 
                 out var vx, out var vy);
-            Assert.AreEqual(mxx[0][0], 50.082245640312429, 1E-5);
-            Assert.AreEqual(mxx[0][1], 49.91775435968767, 1E-5);
+            Assert.AreEqual(mxx[0][0][0], 50.082245640312429, 1E-5);
+            Assert.AreEqual(mxx[0][0][1], 49.91775435968767, 1E-5);
             
             var crosec_shell = model.elems[0].crosec as CroSec_Shell;
             var reinf_thick = crosec_shell.elem_crosecs[0].layers[1].height;

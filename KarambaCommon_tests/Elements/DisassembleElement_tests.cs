@@ -35,8 +35,7 @@ namespace KarambaCommon.Tests.Elements
             var k3d = new Toolkit();
             var beams = k3d.Part.LineToBeam(new List<Line3>() { ln }, new List<string>() { beam_id }, new List<CroSec>(), logger,
                 out var out_points);
-
-            
+          
         }
 #endif
 

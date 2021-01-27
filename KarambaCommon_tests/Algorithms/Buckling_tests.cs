@@ -26,15 +26,15 @@ namespace KarambaCommon.Tests.Algorithms
             var p1 = new Point3(0, 0, length);
             var axis = new Line3(p0, p1);
 
-            var resourcePath = Path.Combine(Utils.PluginPathExe(), @"..\..\Resources\");
+            var resourcePath = @"";
 
             // get a material from the material table in the folder 'Resources'
-            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
+            var materialPath = Path.Combine(resourcePath, "Materials/MaterialProperties.csv");
             var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
             var material = inMaterials.Find(x => x.name == "Steel");
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.csv");
+            var crosecPath = Path.Combine(resourcePath, "CrossSections/CrossSectionValues.bin");
             CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
             var crosec_family = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
             var crosec_initial = crosec_family.Find(x => x.name == "FRQ45/5");
@@ -47,11 +47,9 @@ namespace KarambaCommon.Tests.Algorithms
                 out var out_points);
 
             // create supports
-            var supports = new List<Support>
-            {
-                k3d.Support.Support(p0, new List<bool>() {true, true, true, false, false, true}),
-                k3d.Support.Support(p1, new List<bool>() {true, true, false, false, false, false})
-            };
+            var supports = new List<Support>();
+            supports.Add(k3d.Support.Support(p0, new List<bool>() {true, true, true, false, false, true}));
+            supports.Add(k3d.Support.Support(p1, new List<bool>() {true, true, false, false, false, false}));
 
             // create a Point-load
             var loads = new List<Load>

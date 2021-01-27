@@ -33,22 +33,22 @@ namespace KarambaCommon.Tests.CrossSections
 
             // make temporary changes to the the ini-file and units-conversion
             INIReader.ClearSingleton();
-            UnitsConversionFactories.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
 
             var ini = INIReader.Instance();
             ini.Values["UnitsSystem"] = "imperial";
 
-            var resourcePath = Path.Combine(Utils.PluginPathExe(), @"..\..\Resources\");
+            var resourcePath = @"";
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.csv");
+            var crosecPath = Path.Combine(resourcePath, "CrossSections/CrossSectionValues.bin");
             CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
             var crosec_family = inCroSecs.crosecs.FindAll(x => x.family == "W");
             var crosec_initial = crosec_family.Find(x => x.name == "W12X26");
 
             // clear temporary changes to the the ini-file and units-conversion
             INIReader.ClearSingleton();
-            UnitsConversionFactories.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
 
             var cs = crosec_initial as CroSec_I;
             

@@ -32,13 +32,13 @@ namespace KarambaCommon.Tests.CrossSections
             crosecs.Add(new CroSec_Circle("family", "name", "country", null, null, 10.0, 2.0));
 
             BinaryFormatter formatter = new BinaryFormatter();
-            using (FileStream fs = File.Create(@"crosecs.dat"))
+            using (FileStream fs = File.Create(@"crosecs_test.dat"))
             {
                 formatter.Serialize(fs, crosecs);
             }
 
             var table = new CroSecTable();
-            table.read(@"crosecs.dat");
+            table.read(@"crosecs_test.dat");
 
             var h0 = crosecs[0].getHeight();
             var h1 = table.crosecs[0].getHeight();
@@ -51,14 +51,14 @@ namespace KarambaCommon.Tests.CrossSections
             var crosecs = new List<CroSec>();
             crosecs.Add(new CroSec_Circle("family", "name", "country", null, null, 10.0, 2.0));
 
-            using (FileStream fs = File.Create(@"crosecs.bin"))
+            using (FileStream fs = File.Create(@"crosecs_test.bin"))
             {
                 var writer = new BinaryWriter(fs);
                 CroSecReaderWriter.write(crosecs, writer);
             }
 
             var new_crosecs = new List<CroSec>();
-            using (FileStream fs = File.OpenRead(@"crosecs.bin"))
+            using (FileStream fs = File.OpenRead(@"crosecs_test.bin"))
             {
                 var reader = new BinaryReader(fs);
                 new_crosecs = CroSecReaderWriter.read(reader);

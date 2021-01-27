@@ -58,7 +58,7 @@ namespace KarambaCommon.Tests.Loads
                 var nV = mesh.Vertices.Count;
                 mesh.AddFace(nV - 4, nV - 3, nV - 1, nV - 2);
             }
-            UnitsConversionFactory ucf = UnitsConversionFactories.Conv();
+            UnitsConversionFactory ucf = UnitsConversionFactory.Conv();
             UnitConversion m = ucf.m();
             var baseMesh = m.toBaseMesh(mesh);
 

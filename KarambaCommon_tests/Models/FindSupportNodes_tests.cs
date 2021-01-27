@@ -45,7 +45,7 @@ namespace KarambaCommon.Tests.Model
             }
 
             // create a shell
-            MeshToShell.solve(new List<Point3>(), new List<Mesh3>(){mesh}, limit_dist, new List<string>(), new List<Color>(), new List<CroSec>(), 
+            MeshToShell.solve(new List<Point3>(), new List<Mesh3>(){mesh}, limit_dist, new List<string>(), new List<Color>(), new List<CroSec>(), true, 
                 out List<Point3> outPoints, out List<BuilderShell> outBuilderShells, out MessageLogger outLogger);
 
             // create two supports
