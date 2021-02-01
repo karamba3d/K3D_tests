@@ -11,6 +11,7 @@ Deployment
 In order to run the tests do the following:
 * download and install the latest version of Karamba3D 2.0.0 from 'karamba.dll' from https://github.com/karamba3d/K3D_NightlyBuilds/releases. 
 * install the 'NUnit3 Test Adapter' extension for Visual Studio
+* download this repository, unpack and open Karamba3D_tests.sln with Visual Studio
 * Update the nuget packages in Visual Studio by right-clicking on 'References' and choosing 'Manage NuGet Packages...'.
 * In Visual Studio Right-click on KarambaCommon_tests, select 'Properties' from the drop-down-list, go to 'Debug' and set the 
   Working Directory to the Karamba3d installation folder (e.g. C:\Program Files\Rhino 6\Plug-ins\Karamba\).
