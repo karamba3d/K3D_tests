@@ -18,6 +18,7 @@ In order to run the tests do the following:
 * Give yourself write rights to the Karamba3d installation folder (first reset the owner, then add effective access)
 * Under 'References' refresh the reference to 'karambaCommon' which is found in the Karamba3d installation folder. Make sure that 
   'Copy Local' is set to true for 'karambaCommon' - get there in Visual Studio via left-click on 'karambaCommon' and Properties.
+* Copy the folder 'LicenseTest' from the root of this repository to 'C:\temp\'.
 * If you want to run tests via the 'Test Explorer' copy 'karamba.dll' from the Karamba3d installation folder to 'Karamba3D_tests'
 
 How to run the tests:
@@ -33,6 +34,17 @@ There are two basic methods:
   
 * run tests via the 'Test Explorer' via 'Test/Test Explorer'  from the MSVC menu.
  
+Special notice on handling licenses
+-----------------------------------
+For executing the tests it is sufficient to use a trial license. The license file is searched for in the folder 'KarambaCommon_tests\bin\x64\Debug\License\' by default. So the license folder needs to
+be placed alongside 'KarambaCommon.dll' like in the Karamba installation folder. If the 'License'-folder can not be found the license type defaults to 'trial'. In case you want to create tests
+which go beyond the limits of the trial-version copy your license.lic-file from the Karamba installation folder to the corresponding location in the bin-folder of the tests.
+
+If you want to use your Zoo-server or Zoo cloud license for testing you have to start Rhino and acquire the license via the 'Karamba3DGetLicense'-command, then run the tests.
+
+The test 'ActivateLicense()' in KarambaCommon.Tests.License is an exception in that it tries to load a license from 'C:\temp\LicenseTest\license.lic'. Once loaded a license persists until program execution 
+terminates or Karamba.Licenses.License.unload() is called. When using your own license.lic-file make sure to copy it also to 'C:\temp\LicenseTest\license.lic'. When using Zoo licenses comment out the test 
+in order to avoid problems.  
 
 Contributing
 ------------

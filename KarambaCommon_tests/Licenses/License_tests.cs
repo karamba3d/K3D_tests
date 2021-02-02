@@ -29,8 +29,7 @@ namespace KarambaCommon.Tests.License
             // set the path to where you saved your license file
             Karamba.Licenses.License.getLicense(@"C:\temp\LicenseTest\license.lic", @"C:\temp\LicenseTest\public.key");
             license_type = Karamba.Licenses.License.licenseType();
-            Assert.True(license_type == feb.LicenseType.lic_student || license_type == feb.LicenseType.lic_developer);
-            // Assert.AreEqual(license_type, feb.LicenseType.lic_trial);
+            Assert.True(license_type == feb.LicenseType.lic_student || license_type == feb.LicenseType.lic_developer || license_type == feb.LicenseType.lic_trial);
         }
 #endif
     }
