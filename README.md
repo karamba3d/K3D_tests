@@ -19,7 +19,7 @@ In order to run the tests do the following:
 * Under 'References' refresh the reference to 'karambaCommon' which is found in the Karamba3d installation folder. Make sure that 
   'Copy Local' is set to true for 'karambaCommon' - get there in Visual Studio via left-click on 'karambaCommon' and Properties.
 * Copy the folder 'LicenseTest' from the root of this repository to 'C:\temp\'.
-* If you want to run tests via the 'Test Explorer' copy 'karamba.dll' from the Karamba3d installation folder to 'Karamba3D_tests'
+* Copy 'karamba.dll' and 'libiomp5md.dll' from the Karamba3d installation folder to 'Karamba3D_tests'
 
 How to run the tests:
 ---------------------
