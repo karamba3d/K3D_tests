@@ -49,7 +49,7 @@ in order to avoid problems.
 Contributing
 ------------
 
-Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/karamba3d/K3D_tests/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 Authors
 -------
@@ -62,6 +62,6 @@ See also list of contributors who participated in this project
 License
 -------
 
-This project is licensed under the MIT License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/karamba3d/K3D_tests/blob/master/LICENSE.md) file for details
 
 
