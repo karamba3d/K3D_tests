@@ -1,39 +1,43 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Karamba.CrossSections;
-using Karamba.Geometry;
-using Karamba.Elements;
-using Karamba.Loads;
-using Karamba.Materials;
-using Karamba.Supports;
-using Karamba.Models;
-using Karamba.Utilities;
-using Karamba.Algorithms;
+﻿#if ALL_TESTS
 
 namespace KarambaCommon.Tests.Elements
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Karamba.Algorithms;
+    using Karamba.CrossSections;
+    using Karamba.Elements;
+    using Karamba.Geometry;
+    using Karamba.Loads;
+    using Karamba.Materials;
+    using Karamba.Models;
+    using Karamba.Supports;
+    using Karamba.Utilities;
+    using NUnit.Framework;
+
     [TestFixture]
     public class LocalCoordinateSystems_tests
     {
-#if ALL_TESTS
         [Test]
         public void InclinedBeam()
         {
             var logger = new MessageLogger();
             var p0 = new Point3(0, 0, 0);
             var p1 = new Point3(1, 1, 0);
-            var XDir = (p1 - p0).Unitized;
+            var xDir = (p1 - p0).Unitized;
             var ln = new Line3(p0, p1);
             var beam_id = "b1";
 
             var k3d = new Toolkit();
-            var beams = k3d.Part.LineToBeam(new List<Line3>() { ln }, new List<string>() { beam_id }, new List<CroSec>(), logger,
+            var beams = k3d.Part.LineToBeam(
+                new List<Line3>() { ln },
+                new List<string>() { beam_id },
+                new List<CroSec>(),
+                logger,
                 out var out_points);
 
             var points = beams[0].Pos.Points();
@@ -43,11 +47,9 @@ namespace KarambaCommon.Tests.Elements
             var coosys = beams[0].Ori.CooSys(beams[0].Pos);
             var n0 = coosys[0];
             var n1 = coosys[1];
-            Assert.That((n0 - XDir).Length < 1E-9);
+            Assert.That((n0 - xDir).Length < 1E-9);
         }
-#endif
 
-#if ALL_TESTS
         [Test]
         public void BeamWithNodeIndexes()
         {
@@ -66,27 +68,29 @@ namespace KarambaCommon.Tests.Elements
             Assert.That((n0 - d0).Length < 1E-9);
             Assert.That((n1 - d1).Length < 1E-9);
         }
-#endif
 
-#if ALL_TESTS
         [Test]
         public void InclinedOrientedBeam()
         {
             var logger = new MessageLogger();
             var p0 = new Point3(0, 0, 0);
             var p1 = new Point3(1, 1, 0);
-            var XDir = (p1 - p0).Unitized;
+            var xDir = (p1 - p0).Unitized;
             var ln = new Line3(p0, p1);
             var beam_id = "b1";
 
             var k3d = new Toolkit();
-            var beams = k3d.Part.LineToBeam(new List<Line3>() { ln }, new List<string>() { beam_id }, new List<CroSec>(), logger,
+            var beams = k3d.Part.LineToBeam(
+                new List<Line3>() { ln },
+                new List<string>() { beam_id },
+                new List<CroSec>(),
+                logger,
                 out var out_points);
-                        
+
             var alpha = 45.0.ToRad();
             var ori = beams[0].Ori.Writer;
-            ori.XOri = new Vector3(-1,0,0);
-            ori.ZOri = new Vector3( 0, 0,-1);
+            ori.XOri = new Vector3(-1, 0, 0);
+            ori.ZOri = new Vector3(0, 0, -1);
             ori.Alpha = alpha;
             beams[0].Ori = ori.Reader;
 
@@ -95,16 +99,14 @@ namespace KarambaCommon.Tests.Elements
             var n1 = coosys[1];
             var n2 = coosys[2];
 
-            var n0_targ = -XDir;
+            var n0_targ = -xDir;
             Assert.That((n0 - n0_targ).Length < 1E-9);
 
-            var n2_targ = new Vector3(0,0,-1);
+            var n2_targ = new Vector3(0, 0, -1);
             n2_targ.Rotate(alpha, n0);
             Assert.That((n2 - n2_targ).Length < 1E-9);
         }
-#endif
 
-#if ALL_TESTS
         [Test]
         public void InclinedShell()
         {
@@ -113,11 +115,18 @@ namespace KarambaCommon.Tests.Elements
             var p1 = new Point3(1, 0, 1);
             var p2 = new Point3(1, 1, 1);
             var p3 = new Point3(0, 1, 0);
-            var mesh = new Mesh3(new List<Point3>(){p0, p1, p2, p3}, new List<Face3>(){new Face3(0,1,2), new Face3(0,2,3)});
+            var mesh = new Mesh3(
+                new List<Point3>() { p0, p1, p2, p3 },
+                new List<Face3>() { new Face3(0, 1, 2), new Face3(0, 2, 3) });
             var id = "s1";
 
             var k3d = new Toolkit();
-            var outShells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
+            var outShells = k3d.Part.MeshToShell(
+                new List<Mesh3>() { mesh },
+                new List<string>() { id },
+                new List<CroSec>(),
+                logger,
+                out var outPoints);
 
             var coosys0 = outShells[0].Ori.CooSys(outShells[0].Pos, 0);
             var n0_0 = coosys0[0];
@@ -136,9 +145,7 @@ namespace KarambaCommon.Tests.Elements
             Assert.That((n1_0 - xDir1).Length < 1E-9);
             Assert.That((n1_1 - yDir1).Length < 1E-9);
         }
-#endif
 
-#if ALL_TESTS
         [Test]
         public void InclinedOrientedShell()
         {
@@ -147,11 +154,18 @@ namespace KarambaCommon.Tests.Elements
             var p1 = new Point3(1, 0, 0);
             var p2 = new Point3(1, 1, 0);
             var p3 = new Point3(0, 1, 0);
-            var mesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, new List<Face3>() { new Face3(0, 1, 2), new Face3(0, 2, 3) });
+            var mesh = new Mesh3(
+                new List<Point3>() { p0, p1, p2, p3 },
+                new List<Face3>() { new Face3(0, 1, 2), new Face3(0, 2, 3) });
             var id = "s1";
 
             var k3d = new Toolkit();
-            var outShells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
+            var outShells = k3d.Part.MeshToShell(
+                new List<Mesh3>() { mesh },
+                new List<string>() { id },
+                new List<CroSec>(),
+                logger,
+                out var outPoints);
 
             var alpha_rad = 20.0.ToRad();
             var c20 = Math.Cos(alpha_rad);
@@ -159,8 +173,9 @@ namespace KarambaCommon.Tests.Elements
 
             var ori = outShells[0].Ori.Writer;
             ori.XOriList = new List<Vector3> { new Vector3(c20, s20, 0), new Vector3(-c20, -s20, 0) };
+
             // at the moment angles alpha take no effect in case of shells
-            ori.AlphaList = new List<double>() {alpha_rad, 0};
+            ori.AlphaList = new List<double>() { alpha_rad, 0 };
 
             outShells[0].Ori = ori.Reader;
 
@@ -175,9 +190,7 @@ namespace KarambaCommon.Tests.Elements
             var xDir1 = new Vector3(-c, -c, 0);
             Assert.That((n1_0 - xDir1).Length < 1E-9);
         }
-#endif
 
-#if ALL_TESTS
         [Test]
         public void YZPlaneShell()
         {
@@ -186,11 +199,18 @@ namespace KarambaCommon.Tests.Elements
             var p1 = new Point3(0, 1, 0);
             var p2 = new Point3(0, 1, 1);
             var p3 = new Point3(0, 0, 1);
-            var mesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, new List<Face3>() { new Face3(0, 1, 2), new Face3(0, 2, 3) });
+            var mesh = new Mesh3(
+                new List<Point3>() { p0, p1, p2, p3 },
+                new List<Face3>() { new Face3(0, 1, 2), new Face3(0, 2, 3) });
             var id = "s1";
 
             var k3d = new Toolkit();
-            var outShells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, new List<string>() { id }, new List<CroSec>(), logger, out var outPoints);
+            var outShells = k3d.Part.MeshToShell(
+                new List<Mesh3>() { mesh },
+                new List<string>() { id },
+                new List<CroSec>(),
+                logger,
+                out var outPoints);
 
             var coosys0 = outShells[0].Ori.CooSys(outShells[0].Pos, 0);
             var n0_0 = coosys0[0];
@@ -209,6 +229,7 @@ namespace KarambaCommon.Tests.Elements
             Assert.That((n1_0 - xDir1).Length < 1E-9);
             Assert.That((n1_1 - yDir1).Length < 1E-9);
         }
-#endif
     }
 }
+
+#endif

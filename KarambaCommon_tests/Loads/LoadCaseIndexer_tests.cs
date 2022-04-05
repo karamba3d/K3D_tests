@@ -1,28 +1,28 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Karamba.CrossSections;
-using Karamba.Geometry;
-using Karamba.Elements;
-using Karamba.Loads;
-using Karamba.Materials;
-using Karamba.Supports;
-using Karamba.Models;
-using Karamba.Utilities;
-using Karamba.Algorithms;
-using Karamba.Loads.Combinations;
+﻿#if ALL_TESTS
 
 namespace KarambaCommon.Tests.Loads
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Karamba.Algorithms;
+    using Karamba.CrossSections;
+    using Karamba.Elements;
+    using Karamba.Geometry;
+    using Karamba.Loads;
+    using Karamba.Loads.Combinations;
+    using Karamba.Materials;
+    using Karamba.Models;
+    using Karamba.Supports;
+    using Karamba.Utilities;
+    using NUnit.Framework;
+
     [TestFixture]
     public class LoadCaseIndexer_tests
     {
-#if ALL_TESTS
         /*
                 /// <summary>
                 /// shows how load-case identifiers are ordered by default
@@ -52,6 +52,7 @@ namespace KarambaCommon.Tests.Loads
                     Assert.AreEqual(lcIds[7], "LC2");
                 }
                     */
-#endif
     }
 }
+
+#endif

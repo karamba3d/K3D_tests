@@ -8,10 +8,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -21,16 +21,16 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
-using Karamba.Utilities;
-using NUnitLite;
-using System;
-
 namespace NUnitLite.Tests
 {
+    using System;
+    using Karamba.Utilities;
+    using NUnitLite;
+
     public class Program
     {
         /// <summary>
-        /// 
+        ///
         /// The main program executes the tests. Output may be routed to
         /// various locations, depending on the arguments passed.
         /// </summary>
@@ -45,7 +45,7 @@ namespace NUnitLite.Tests
             var ini = INIReader.Instance();
             ini.Values["UnitsSystem"] = "SI";
             ini.Values["gravity"] = "10.0";
-            
+
             // run the tests
             var res = new AutoRun().Execute(args);
             Console.WriteLine("Press any key to close");

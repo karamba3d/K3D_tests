@@ -1,31 +1,29 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Karamba.CrossSections;
-using Karamba.Geometry;
-using Karamba.Elements;
-using Karamba.Loads;
-using Karamba.Materials;
-using Karamba.Supports;
-using Karamba.Models;
-using Karamba.Utilities;
-using Karamba.Algorithms;
-using Karamba.Loads.Combinations;
-using Karamba.Results;
+﻿#if ALL_TESTS
 
 namespace KarambaCommon.Tests.Loads
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Karamba.Algorithms;
+    using Karamba.CrossSections;
+    using Karamba.Elements;
+    using Karamba.Geometry;
+    using Karamba.Loads;
+    using Karamba.Loads.Combinations;
+    using Karamba.Materials;
+    using Karamba.Models;
+    using Karamba.Results;
+    using Karamba.Supports;
+    using Karamba.Utilities;
+    using NUnit.Framework;
     /*
     [TestFixture]
     public class LoadCaseCombinator_tests
     {
-
-#if ALL_TESTS
 
         [Test]
         public void LoadCaseCombinations_From_Rules_With_Warning()
@@ -105,7 +103,7 @@ namespace KarambaCommon.Tests.Loads
             Assert.True(combis.Count == 2);
             Assert.True(combis_str[0] == "A+2,5*B");
             Assert.True(combis_str[1] == "2*B+0,5*A");
-            
+
             rules = new List<string> { @"X2=(1|0.5)A & (2|1.5)B & (3|2.5)C" };
             lc_combinator.AddRules(rules);
             lc_combinator.AddLoadCombination("X2");
@@ -189,7 +187,7 @@ namespace KarambaCommon.Tests.Loads
             Assert.True(combis.Count == 1);
             Assert.True(combis_str[0] == "A+B+C");
         }
-        
+
         [Test]
         public void LoadCaseCombinations_OR()
         {
@@ -225,9 +223,8 @@ namespace KarambaCommon.Tests.Loads
             Assert.True(combis_str[1] == "B");
             Assert.True(combis_str[2] == "C");
         }
-
-#endif
     }
     */
 }
 
+#endif

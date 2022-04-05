@@ -1,27 +1,27 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Karamba.CrossSections;
-using Karamba.Geometry;
-using Karamba.Elements;
-using Karamba.Loads;
-using Karamba.Materials;
-using Karamba.Supports;
-using Karamba.Models;
-using Karamba.Utilities;
-using Karamba.Algorithms;
+﻿#if ALL_TESTS
 
 namespace KarambaCommon.Tests.Loads
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Karamba.Algorithms;
+    using Karamba.CrossSections;
+    using Karamba.Elements;
+    using Karamba.Geometry;
+    using Karamba.Loads;
+    using Karamba.Materials;
+    using Karamba.Models;
+    using Karamba.Supports;
+    using Karamba.Utilities;
+    using NUnit.Framework;
+
     [TestFixture]
     public class MeshLoad_tests
     {
-#if ALL_TESTS
         [Test]
         public void MeshLoadProfiling()
         {
@@ -33,11 +33,11 @@ namespace KarambaCommon.Tests.Loads
             double lengthBeams = 10.0;
             double xIncBeam = lengthBeams / nBeams;
             double xIncMesh = lengthBeams / nFaces;
-            double limit_dist = xIncBeam / 100.0;
+            _ = xIncBeam / 100.0;
 
             // create beams
             var lines = new List<Line3>();
-            var nodeI = new Point3(0,0,0);
+            var nodeI = new Point3(0, 0, 0);
             for (int beamInd = 0; beamInd < nBeams; ++beamInd)
             {
                 var nodeK = new Point3(nodeI.X + xIncBeam, 0, 0);
@@ -45,10 +45,15 @@ namespace KarambaCommon.Tests.Loads
                 nodeI = nodeK;
             }
 
-            var builderElements = k3d.Part.LineToBeam(lines, new List<string>(), new List<CroSec>(), logger, out List<Point3> outPoints);
+            var builderElements = k3d.Part.LineToBeam(
+                lines,
+                new List<string>(),
+                new List<CroSec>(),
+                logger,
+                out List<Point3> _);
 
             // create a MeshLoad
-            var mesh = new Mesh3((nFaces+1)*2, nFaces);
+            var mesh = new Mesh3((nFaces + 1) * 2, nFaces);
             mesh.AddVertex(new Point3(0, -0.5, 0));
             mesh.AddVertex(new Point3(0, 0.5, 0));
             for (var faceInd = 0; faceInd < nFaces; ++faceInd)
@@ -58,8 +63,9 @@ namespace KarambaCommon.Tests.Loads
                 var nV = mesh.Vertices.Count;
                 mesh.AddFace(nV - 4, nV - 3, nV - 1, nV - 2);
             }
-            UnitsConversionFactory ucf = UnitsConversionFactory.Conv();
-            UnitConversion m = ucf.m();
+
+            var ucf = UnitsConversionFactory.Conv();
+            var m = UnitsConversionFactory.Conv().base_length;
             var baseMesh = m.toBaseMesh(mesh);
 
             // create a mesh load
@@ -69,16 +75,26 @@ namespace KarambaCommon.Tests.Loads
             var support = k3d.Support.Support(new Point3(0, 0, 0), k3d.Support.SupportFixedConditions);
 
             // assemble the model
-            var model = k3d.Model.AssembleModel(builderElements, new List<Support>() { support }, new List<Load>() { load }, 
-                out var info, out var mass, out var cog, out var message, out var runtimeWarning);
-            
-            // calculate the model
-            model = k3d.Algorithms.AnalyzeThI(model, out var outMaxDisp, out var outG, out var outComp, out var warning);
-            Assert.AreEqual(outMaxDisp[0], 2.8232103119228276, 1E-5);
-        }
-#endif
+            var model = k3d.Model.AssembleModel(
+                builderElements,
+                new List<Support>() { support },
+                new List<Load>() { load },
+                out var _,
+                out _,
+                out var _,
+                out var _,
+                out var _);
 
-#if ALL_TESTS
+            // calculate the model
+            _ = k3d.Algorithms.AnalyzeThI(
+                model,
+                out var outMaxDisp,
+                out var _,
+                out var _,
+                out var _);
+            Assert.That(outMaxDisp[0], Is.EqualTo(2.8232103119228276).Within(1E-5));
+        }
+
         [Test]
         public void MeshLoad_on_QuadMesh()
         {
@@ -89,23 +105,72 @@ namespace KarambaCommon.Tests.Loads
             var p1 = new Point3(1, 0, 0);
             var p2 = new Point3(1, 1, 0);
             var p3 = new Point3(0, 1, 0);
-            var mesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, 
-                new List<Face3>() { new Face3(0, 1, 2, 3)});
+            var mesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, new List<Face3>() { new Face3(0, 1, 2, 3), });
 
             // create a mesh load
             var load = k3d.Load.MeshLoad(new List<Vector3>() { new Vector3(0, 0, 1) }, mesh);
 
             // create a shell
-            var shells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, 
-                null, null, logger, out var outPoints);
+            var shells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, null, null, logger, out _);
 
             // assemble the model
-            var model = k3d.Model.AssembleModel(shells, null, new List<Load>{load},
-                out var info, out var mass, out var cog, out var message, out var warning);
+            var model = k3d.Model.AssembleModel(
+                shells,
+                null,
+                new List<Load> { load },
+                out _,
+                out _,
+                out _,
+                out _,
+                out _);
 
-            Assert.AreEqual(0.25, model.mloads[0].model_unit_loads.max_vertex_load, 1e-5);
-
+            Assert.That(model.mloads[0].model_unit_loads.max_vertex_load, Is.EqualTo(0.25).Within(1e-5));
         }
-#endif
+
+        [Test]
+        public void MeshLoad_on_Named_QuadMesh()
+        {
+            var k3d = new Toolkit();
+            var logger = new MessageLogger();
+
+            var p0 = new Point3(0, 0, 0);
+            var p1 = new Point3(1, 0, 0);
+            var p2 = new Point3(1, 1, 0);
+            var p3 = new Point3(0, 1, 0);
+            var mesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, new List<Face3>() { new Face3(0, 1, 2, 3), });
+
+            // create a mesh load
+            var load = k3d.Load.MeshLoad(
+                new List<Vector3>() { new Vector3(0, 0, 1) },
+                mesh,
+                LoadOrientation.global,
+                true,
+                true,
+                null,
+                new List<string>() { "A" });
+
+            // create a shell
+            List<BuilderShell> shells = k3d.Part.MeshToShell(
+                new List<Mesh3>() { mesh },
+                new List<string>() { "A" },
+                null,
+                logger,
+                out _);
+
+            // assemble the model
+            var model = k3d.Model.AssembleModel(
+                shells,
+                null,
+                new List<Load> { load },
+                out _,
+                out _,
+                out _,
+                out _,
+                out _);
+
+            Assert.That(model.mloads[0].model_unit_loads.max_vertex_load, Is.EqualTo(0.25).Within(1e-5));
+        }
     }
 }
+
+#endif

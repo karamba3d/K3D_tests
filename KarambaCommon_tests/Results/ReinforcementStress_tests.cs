@@ -1,28 +1,28 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Karamba.CrossSections;
-using Karamba.Geometry;
-using Karamba.Elements;
-using Karamba.Loads;
-using Karamba.Materials;
-using Karamba.Supports;
-using Karamba.Models;
-using Karamba.Utilities;
-using Karamba.Algorithms;
-using Karamba.Joints;
+﻿#if ALL_TESTS
 
 namespace KarambaCommon.Tests.Result
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Karamba.Algorithms;
+    using Karamba.CrossSections;
+    using Karamba.Elements;
+    using Karamba.Geometry;
+    using Karamba.Joints;
+    using Karamba.Loads;
+    using Karamba.Materials;
+    using Karamba.Models;
+    using Karamba.Supports;
+    using Karamba.Utilities;
+    using NUnit.Framework;
+
     [TestFixture]
     public class ReinforcementStressTests
     {
-#if ALL_TESTS
         [Test]
         public void DeformationTestIsotropicShellInPlane()
         {
@@ -47,28 +47,49 @@ namespace KarambaCommon.Tests.Result
             }
 
             // create a shell
-            MeshToShell.solve(new List<Point3>(), new List<Mesh3>() { mesh }, limit_dist, new List<string>(), new List<Color>(), new List<CroSec>(), true,
-                out List<Point3> outPoints, out List<BuilderShell> outBuilderShells, out MessageLogger outLogger);
+            MeshToShell.solve(
+                new List<Point3>(),
+                new List<Mesh3>() { mesh },
+                limit_dist,
+                new List<string>(),
+                new List<Color>(),
+                new List<CroSec>(),
+                true,
+                out _,
+                out List<BuilderShell> outBuilderShells,
+                out _);
 
             // create two supports
-            var support1 = new Support(new Point3(0, y0, 0), new List<bool>() { true, true , true, true, true, true }, Plane3.Default);
-            var support2 = new Support(new Point3(0, y1, 0), new List<bool>() { true, false, true, true, true, true }, Plane3.Default);
+            var support1 = new Support(
+                new Point3(0, y0, 0),
+                new List<bool>() { true, true, true, true, true, true },
+                Plane3.Default);
+            var support2 = new Support(
+                new Point3(0, y1, 0),
+                new List<bool>() { true, false, true, true, true, true },
+                Plane3.Default);
 
             // create two point loads
             var pl1 = new PointLoad(mesh.Vertices.Count - 2, new Vector3(25, 0, 0), new Vector3(), false);
             var pl2 = new PointLoad(mesh.Vertices.Count - 1, new Vector3(25, 0, 0), new Vector3(), false);
-            
+
             // assemble the model
             var modelBuilder = new ModelBuilder(limit_dist);
-            var model = modelBuilder.build(new List<Point3>(), new List<FemMaterial>(), new List<CroSec>(),
-                new List<Support>() { support1, support2 }, new List<Load>() { pl1, pl2 }, outBuilderShells, new List<ElemSet>(), 
-                new List<Joint>(), new MessageLogger()
-            );
+            var model = modelBuilder.build(
+                new List<Point3>(),
+                new List<FemMaterial>(),
+                new List<CroSec>(),
+                new List<Support>() { support1, support2 },
+                new List<Load>() { pl1, pl2 },
+                outBuilderShells,
+                new List<ElemSet>(),
+                new List<Joint>(),
+                new MessageLogger());
+            AnalyzeThI.solve(model, out var outMaxDisp, out _, out _, out _, out _);
 
-            ThIAnalyze.solve(model, out var outMaxDisp, out var outG, out var outComp, out var warning, out model);
-
-            Assert.AreEqual(outMaxDisp[0], 2.4858889456113236E-05, 1E-5);
+            Assert.That(outMaxDisp[0], Is.EqualTo(2.4858889456113236E-05).Within(1E-5));
         }
-#endif
     }
 }
+
+#endif

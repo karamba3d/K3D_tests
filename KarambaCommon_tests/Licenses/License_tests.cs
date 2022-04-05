@@ -1,36 +1,50 @@
-﻿using NUnit.Framework;
-using Karamba.Licenses;
-using System.IO;
+﻿#if ALL_TESTS
 
 namespace KarambaCommon.Tests.License
 {
+    using System;
+    using System.IO;
+    using System.Reflection;
+    using Karamba.Licenses;
+    using NUnit.Framework;
+
     [TestFixture]
     public class License_tests
     {
-#if ALL_TESTS
         [Test]
         public void ActivateLicense()
         {
-            var license_path = Karamba.Licenses.License.licensePath();
-            Karamba.Licenses.License.getLicense();
-            var has_expired = Karamba.Licenses.License.has_expired();
-            Assert.IsFalse(has_expired);
-            var license_type = Karamba.Licenses.License.licenseType();
-            Assert.True(license_type == feb.LicenseType.lic_trial ||
-                        license_type == feb.LicenseType.lic_developer ||
-                        license_type == feb.LicenseType.lic_student);
+            // Arrange
+            var workingDir = Directory.GetCurrentDirectory();
+            var licensePath = License.licensePath();
+            License.getLicense();
 
-            // load a new license 
-            Karamba.Licenses.License.unload();
+            // Act
+            var hasExpired = License.has_expired();
+            var licenseType = License.licenseType().ToString();
 
-            Assert.True(File.Exists(@"C:\temp\LicenseTest\license.lic") && File.Exists(@"C:\temp\LicenseTest\public.key"),
-                @"In order that the tests work place 'license.lic' and 'public.key' under 'C:\temp\LicenseTest\'");
-            
+            // Assert
+            var validTypes = Enum.GetNames(typeof(feb.LicenseType));
+            Assert.That(hasExpired, Is.False);
+            Assert.That(Array.Exists(validTypes, type => type == licenseType), Is.True);
+
+            // Arrange
+            // Load a new license
+            License.unload();
+
+            // Act
             // set the path to where you saved your license file
-            Karamba.Licenses.License.getLicense(@"C:\temp\LicenseTest\license.lic", @"C:\temp\LicenseTest\public.key");
-            license_type = Karamba.Licenses.License.licenseType();
-            Assert.True(license_type == feb.LicenseType.lic_student || license_type == feb.LicenseType.lic_developer || license_type == feb.LicenseType.lic_trial);
+            License.getLicense(@"C:\temp\LicenseTest\license.lic", @"C:\temp\LicenseTest\public.key");
+            licenseType = License.licenseType().ToString();
+
+            // Assert
+            Assert.True(
+                File.Exists(@"C:\temp\LicenseTest\license.lic") &&
+                File.Exists(@"C:\temp\LicenseTest\public.key"),
+                @"In order that the tests work place 'license.lic' and 'public.key' under 'C:\temp\LicenseTest\'");
+            Assert.That(Array.Exists(validTypes, type => type == licenseType), Is.True);
         }
-#endif
     }
 }
+
+#endif

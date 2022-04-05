@@ -9,17 +9,16 @@ Deployment
 ----------
 
 In order to run the tests do the following:
-* download and install the latest version of Karamba3D 2.0.0 from 'karamba.dll' from https://github.com/karamba3d/K3D_NightlyBuilds/releases. 
+* download and install the latest version of Karamba3D 2.2.0 from https://github.com/karamba3d/K3D_NightlyBuilds/releases for Rhino7. In case you prefer another verson of Rhino you need to change the pathes in the post-build of the test project (see below).
 * install the 'NUnit3 Test Adapter' extension for Visual Studio
 * download this repository, unpack and open Karamba3D_tests.sln with Visual Studio
 * Update the nuget packages in Visual Studio by right-clicking on 'References' and choosing 'Manage NuGet Packages...'.
-* In Visual Studio Right-click on KarambaCommon_tests, select 'Properties' from the drop-down-list, go to 'Debug' and set the 
-  Working Directory to the Karamba3d installation folder (e.g. C:\Program Files\Rhino 6\Plug-ins\Karamba\).
-* Give yourself write rights to the Karamba3d installation folder (first reset the owner, then add effective access)
+* Close Visual Studio and open it again.
+* Give yourself read rights to the Karamba3d installation folder (first reset the owner, then add effective access)
 * Under 'References' refresh the reference to 'karambaCommon' which is found in the Karamba3d installation folder. Make sure that 
   'Copy Local' is set to true for 'karambaCommon' - get there in Visual Studio via left-click on 'karambaCommon' and Properties.
 * Copy the folder 'LicenseTest' from the root of this repository to 'C:\temp\'.
-* Copy 'karamba.dll' and 'libiomp5md.dll' from the Karamba3d installation folder to 'Karamba3D_tests'
+* In case the installation folder of Karamba3D is not 'C:\Program Files\Rhino 7\Plug-ins\Karamba' adapt the post build events of 'KarambaCommon_tests': right-click on 'KarambaCommon_tests', select 'Build Events', go to 'Post-build event command line' and adapt the source pathes. 
 
 How to run the tests:
 ---------------------
