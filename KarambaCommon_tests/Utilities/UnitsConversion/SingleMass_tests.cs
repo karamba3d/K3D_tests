@@ -33,12 +33,11 @@ namespace KarambaCommon.Tests.Model
 
             var ini = INIReader.Instance();
             ini.Values["UnitsSystem"] = "SI";
-            ini.Values["UnitsSystem"] = "SI";
 
             var gravity = 9.81; // m/s2
             ini.Values["gravity"] = gravity.ToString(CultureInfo.InvariantCulture);
             ini.Values["UnitLength"] = "ft";
-            ini.Values["UnitForce"] = "MN";
+            ini.Values["UnitForce"] = "kN";
             ini.Values["UnitMass"] = "t";
 
             var uc = UnitsConversionFactory.Conv();
@@ -92,6 +91,10 @@ namespace KarambaCommon.Tests.Model
                 new List<Joint>(),
                 points);
 
+            var forceToMass = uc.force2mass().toBase(1);
+            var massTarget = unit_crosec.A * gamma * l * forceToMass;
+            Assert.That(mass, Is.EqualTo(massTarget).Within(1e-5));
+
             // calculate the natural vibrations
             int from_shape_ind = 1;
             int shapes_num = 1;
@@ -118,11 +121,11 @@ namespace KarambaCommon.Tests.Model
             var l_ = l; // cm;
             var gamma_ = unit_material.gamma(); // N/cm3
             var c = e_ * a_ / l; // N / m
-            var m = a_ * l_ * gamma_ / gravity * 0.5; // kg
+            var m = a_ * l_ * gamma_ * forceToMass * 0.5; // kg
             var omega0 = Math.Sqrt(c / m); // rad / sec
-            var f0 = omega0 / 2.0 / Math.PI; // 1 / sec = Hz
-
-            Assert.That(f0, Is.EqualTo(nat_frequencies[0]).Within(1e-2));
+            var f0Target = omega0 / 2.0 / Math.PI; // 1 / sec = Hz
+            var f0Calc = nat_frequencies[0];
+            Assert.That(f0Target, Is.EqualTo(f0Calc).Within(1e-2));
 
             // clear temporary changes to the the ini-file and units-conversion
             INIReader.ClearSingleton();

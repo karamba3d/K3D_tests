@@ -84,7 +84,7 @@ namespace KarambaCommon.Tests.Joints
             Assert.AreEqual(dispCalc, dispTarget, 1);
         }
 
-        [Test]
+         [Test]
         public void Plate_Quad_InPlaneSpringOnOneSide()
         {
             var k3d = new Toolkit();

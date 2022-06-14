@@ -223,7 +223,6 @@
 
             crosec_shell = model.elems[0].crosec as CroSec_Shell;
             var reinf_thick = crosec_shell.elem_crosecs[0].layers[1].height;
-
             // ~ 2 / 1.21 / 43.5 * 2 (result at cantilever mid)
             Assert.That(reinf_thick, Is.EqualTo(2.1828168088280552E-06).Within(1E-5));
         }

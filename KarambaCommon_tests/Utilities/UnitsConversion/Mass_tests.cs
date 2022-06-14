@@ -78,7 +78,8 @@ namespace KarambaCommon.Tests.Model
             // switch back to SI units
             ini.Values["UnitsSystem"] = "SI";
 
-            Assert.That(mass, Is.EqualTo(1000).Within(1e-10));
+            var massTarget = unit_crosec.A * gamma * l;
+            Assert.That(mass, Is.EqualTo(massTarget).Within(1e-10));
         }
 
         [Test]

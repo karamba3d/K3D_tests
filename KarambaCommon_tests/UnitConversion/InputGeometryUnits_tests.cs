@@ -1,5 +1,5 @@
 ﻿#if ALL_TESTS
-/*
+
 namespace KarambaCommon.Tests.UnitConversion
 {
     using System;
@@ -12,8 +12,6 @@ namespace KarambaCommon.Tests.UnitConversion
     using Karamba.CrossSections;
     using Karamba.Elements;
     using Karamba.Geometry;
-    using Karamba.GHopper.Materials;
-    using Karamba.GHopper.Utilities;
     using Karamba.Joints;
     using Karamba.Utilities;
     using NUnit.Framework;
@@ -89,6 +87,5 @@ namespace KarambaCommon.Tests.UnitConversion
         }
     }
 }
-*/
 
 #endif

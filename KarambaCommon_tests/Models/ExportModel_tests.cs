@@ -77,7 +77,7 @@ namespace KarambaCommon.Tests.Model
             var comp = res[11] ==
                        "#5=MATERIAL($,'name',21.0001111,8.750123,0.000234234567,1.23456E-06,0.00234566,$,$,$);";
             Assert.IsTrue(comp);
-            comp = res[15] == "#9=VERTEX($,2777.775,0,0,$);";
+            comp = res[16] == "#10=VERTEX($,2777.775,0,0,$);";
             Assert.IsTrue(comp);
         }
     }

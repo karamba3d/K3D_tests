@@ -54,9 +54,9 @@ namespace KarambaCommon.Tests.Model
 
             // Iy = 108 inch^4
             // g = 20.833 lb/inch
-            var unit_crosec = k3d.CroSec.Box(b, b, b, t, t, t, 0, 0, unit_material);
+            var unitCrosec = k3d.CroSec.Box(b, b, b, t, t, t, 0, 0, unit_material);
 
-            var elems = new List<BuilderBeam>() { k3d.Part.IndexToBeam(0, 1, "A", unit_crosec), };
+            var elems = new List<BuilderBeam>() { k3d.Part.IndexToBeam(0, 1, "A", unitCrosec), };
 
             var l = 10.0; // in feet
             var points = new List<Point3> { new Point3(), new Point3(l, 0, 0) };
@@ -68,12 +68,15 @@ namespace KarambaCommon.Tests.Model
                 supports,
                 null,
                 out _,
-                out _,
+                out double massStructure,
                 out _,
                 out _,
                 out _,
                 new List<Joint>(),
                 points);
+
+            double massTarg = l * unitCrosec.A * gamma;
+            Assert.That(massStructure, Is.EqualTo(massTarg).Within(1e-2));
 
             // calculate the natural vibrations
             int from_shape_ind = 1;
@@ -99,15 +102,10 @@ namespace KarambaCommon.Tests.Model
             // calculate the expected value of the first eigen-frequency
             // see Young, W. C., Budynas, R. G.(2002). Roark's Formulas for Stress and Strain .
             // 7nd Edition, McGraw-Hill, Chapter 16 , pp 767 - 768
-            var e_ = e * 1000.0 * Math.Pow(UnitConversionCollection.InchToFt, 2);
-            var i_ = unit_crosec.Iyy / Math.Pow(UnitConversionCollection.InchToFt, 4);
-            var w_ = unit_crosec.A * gamma * 1000.0 * UnitConversionCollection.InchToFt;
-            var g_ = UnitConversionCollection.GInIu / UnitConversionCollection.InchToFt;
-            var l_ = l / UnitConversionCollection.InchToFt;
-            var kn = 3.52;
-            var f1_expected = kn / 2.0 / Math.PI * Math.Sqrt(e_ * i_ * g_ / w_ / Math.Pow(l_, 4));
-
-            Assert.That(f1_expected, Is.EqualTo(nat_frequencies[0]).Within(1e-2));
+            var kn = 1.875 * 1.875;
+            var f1Expected = kn / 2.0 / Math.PI * Math.Sqrt(e * unitCrosec.Iyy / unitCrosec.A / gamma / Math.Pow(l, 4));
+            var f1Calculated = nat_frequencies[0];
+            Assert.That(f1Expected, Is.EqualTo(f1Calculated).Within(1e-2));
 
             // clear temporary changes to the the ini-file and units-conversion
             INIReader.ClearSingleton();

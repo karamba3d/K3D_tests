@@ -170,6 +170,92 @@ namespace KarambaCommon.Tests.Loads
 
             Assert.That(model.mloads[0].model_unit_loads.max_vertex_load, Is.EqualTo(0.25).Within(1e-5));
         }
+
+        [Test]
+        public void UnitMeshLoads_Detection()
+        {
+            var k3d = new Toolkit();
+            var logger = new MessageLogger();
+
+            var p0 = new Point3(0, 0, 0);
+            var p1 = new Point3(1, 0, 0);
+            var p2 = new Point3(1, 1, 0);
+            var p3 = new Point3(0, 1, 0);
+            var elemPoints = new List<Point3>()
+            {
+                p0,
+                p1,
+                p2,
+                p3
+            };
+            var elemMesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, new List<Face3>() { new Face3(0, 1, 2, 3), });
+
+            // create a shell
+            List<BuilderShell> shells = k3d.Part.MeshToShell(
+                new List<Mesh3>() { elemMesh },
+                new List<string>() { "A" },
+                null,
+                logger,
+                out _);
+
+            var p4 = new Point3(0, 0, 0);
+            var p5 = new Point3(1, 1, 0);
+            var p6 = new Point3(1, -1, 0);
+            var points = new List<Point3>()
+            {
+                p4,
+                p5,
+                p6
+            };
+
+            var loadMesh = new Mesh3(points, new List<Face3>() { new Face3(0, 1, 2), });
+
+            // create a mesh loads
+            var meshUnitLoadsCache = new Dictionary<MeshUnitLoad, MeshUnitLoad>();
+
+            var load1 = k3d.Load.MeshLoad(
+                new List<Vector3>() { new Vector3(0, 0, 1) },
+                loadMesh,
+                LoadOrientation.global,
+                true,
+                false,
+                elemPoints,
+                new List<string> { "A" },
+                meshUnitLoadsCache);
+
+            var load2 = k3d.Load.MeshLoad(
+                new List<Vector3>() { new Vector3(0, 0, 2) },
+                loadMesh,
+                LoadOrientation.global,
+                true,
+                false,
+                elemPoints,
+                new List<string> { "A" },
+                meshUnitLoadsCache);
+
+            var load3 = k3d.Load.MeshLoad(
+                new List<Vector3>() { new Vector3(0, 0, -2) },
+                loadMesh,
+                LoadOrientation.global,
+                true,
+                false,
+                elemPoints,
+                new List<string> { "A" },
+                meshUnitLoadsCache);
+
+            Assert.That(meshUnitLoadsCache.Count == 1);
+
+            // assemble the model
+            var model = k3d.Model.AssembleModel(
+                shells,
+                null,
+                new List<Load> { load1, load2, load3 },
+                out _,
+                out _,
+                out _,
+                out _,
+                out _);
+        }
     }
 }
 
