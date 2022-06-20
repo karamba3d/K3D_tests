@@ -432,7 +432,7 @@ namespace KarambaCommon.Tests.Algorithms
             var k3d = new Toolkit();
             var logger = new MessageLogger();
 
-            double E = 21000; // kip/ft2
+            const double e = 21000; // kip/ft2
             double gamma = 10; // kip/ft3
             var material = k3d.Material.IsotropicMaterial(
                 "MaterialFamily",
@@ -514,9 +514,9 @@ namespace KarambaCommon.Tests.Algorithms
                 out List<double> participation_facs_disp,
                 out model);
 
-            double A = diameter * diameter * Math.PI / 4.0 / 144; // ft^2
-            double c = E * A / length;
-            double totalMass = massConverted + A * length * gamma * 140.0 / 420.0;
+            double a = diameter * diameter * Math.PI / 4.0 / 144; // ft^2
+            double c = e * a / length;
+            double totalMass = massConverted + a * length * gamma * 140.0 / 420.0;
             double omega = Math.Sqrt(c / totalMass);
             double fTar = omega / 2 / Math.PI;
             double fRes = nat_frequencies[0];

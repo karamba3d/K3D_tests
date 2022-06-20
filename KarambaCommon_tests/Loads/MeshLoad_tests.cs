@@ -186,7 +186,7 @@ namespace KarambaCommon.Tests.Loads
                 p0,
                 p1,
                 p2,
-                p3
+                p3,
             };
             var elemMesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, new List<Face3>() { new Face3(0, 1, 2, 3), });
 
@@ -205,7 +205,7 @@ namespace KarambaCommon.Tests.Loads
             {
                 p4,
                 p5,
-                p6
+                p6,
             };
 
             var loadMesh = new Mesh3(points, new List<Face3>() { new Face3(0, 1, 2), });

@@ -1,8 +1,5 @@
 ﻿#if ALL_TESTS
 
-// using System.Text.Json;
-// using System.Text.Json.Serialization;
-
 namespace KarambaCommon.Tests.Serialization
 {
     using System;

@@ -31,18 +31,6 @@ namespace KarambaCommon.Tests.License
             // Arrange
             // Load a new license
             License.unload();
-
-            // Act
-            // set the path to where you saved your license file
-            License.getLicense(@"C:\temp\LicenseTest\license.lic", @"C:\temp\LicenseTest\public.key");
-            licenseType = License.licenseType().ToString();
-
-            // Assert
-            Assert.True(
-                File.Exists(@"C:\temp\LicenseTest\license.lic") &&
-                File.Exists(@"C:\temp\LicenseTest\public.key"),
-                @"In order that the tests work place 'license.lic' and 'public.key' under 'C:\temp\LicenseTest\'");
-            Assert.That(Array.Exists(validTypes, type => type == licenseType), Is.True);
         }
     }
 }

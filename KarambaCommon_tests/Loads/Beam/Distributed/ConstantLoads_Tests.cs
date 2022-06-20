@@ -173,6 +173,7 @@ namespace KarambaCommon.Tests.Loads
                 : SwigHelper.CastTo<feb.LoadRotationalLine>(febLoads.load(0), false);
             Assert.That(febLoad1.swigCMemOwn, Is.EqualTo(false));
             Assert.That(febLoad1.pos(), Is.EqualTo(0.0 * length));
+
             // Assert.That(febLoad1.vals().ToArray(), Is.EqualTo(new double[] { 1.0 }));
             Assert.That(febLoad1.vals()[0], Is.EqualTo(1.0));
         }
