@@ -131,7 +131,7 @@
       <HintPath>..\packages\Castle.Core.4.4.1\lib\net45\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="KarambaCommon, Version=2.2.0.14, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\KarambaCommon.2.2.0.14\lib\net48\KarambaCommon.dll</HintPath>
+      <HintPath>..\packages\KarambaCommon.2.2.0.141\lib\net48\KarambaCommon.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
