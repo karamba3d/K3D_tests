@@ -14,6 +14,8 @@ In order to run the tests do the following:
 * Rebuild the solution.
 * The license that comes as part of this repo is a Trial-license. In case you want to use your Cloud-license start Rhino and execute 'Karamba3DGetLicense' in the Rhino command window before starting the tests. 
 
+The folder 'VisualStudioCodeExample' contains a console application that shows how to work with KarambaCommon in **Visual Studio Code**. Read the remarks in Program.cs for details. 
+
 How to run the tests:
 ---------------------
 
