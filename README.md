@@ -11,8 +11,7 @@ Deployment
 In order to run the tests do the following:
 * Install the 'NUnit3 Test Adapter' extension for Visual Studio
 * Download this repository, unpack and open Karamba3D_tests.sln with Visual Studio
-* Update the nuget packages in Visual Studio by right-clicking on 'References' and choosing 'Manage NuGet Packages...'.
-* Close Visual Studio and open it again.
+* Rebuild the solution.
 * The license that comes as part of this repo is a Trial-license. In case you want to use your Cloud-license start Rhino and execute 'Karamba3DGetLicense' in the Rhino command window before starting the tests. 
 
 How to run the tests:
