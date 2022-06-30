@@ -18,13 +18,13 @@ How to run the tests:
 ---------------------
 
 There are two basic methods:
-* run directly from Visual Studio via Ctrl+F10 if you want to run to the cursor, or Ctrl+F5 if you want to run all the tests. In this case 'KarambaCommon_tests.exe'
+* Run directly from Visual Studio via Ctrl+F10 if you want to run to the cursor, or Ctrl+F5 if you want to run all the tests. In this case 'KarambaCommon_tests.exe'
   in 'Karamba3D_tests\KarambaCommon_tests\bin\x64\Debug' gets invoked. 
   
   For selecting only some tests change ' #if ALL_TESTS' to e.g. ' #if _ALL_TESTS' at those tests, and change the conditional compilation symbol 'ALL_TESTS' to 
   '_ALL_TESTS' (see Properties/Build).
   
-* run tests via the 'Test Explorer' via 'Test/Test Explorer'  from the MSVC menu.
+* Run tests via the 'Test Explorer' via 'Test/Test Explorer'  from the MSVC menu.
  
 Special notice on handling licenses
 -----------------------------------
