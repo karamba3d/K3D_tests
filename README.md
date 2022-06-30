@@ -8,7 +8,7 @@ These are unit-tests for Karamba3D.
 Deployment
 ----------
 
-In order to run the tests do the following:
+In order to run the tests in **Visual Studio** do the following:
 * Install the 'NUnit3 Test Adapter' extension for Visual Studio
 * Download this repository, unpack and open Karamba3D_tests.sln with Visual Studio
 * Rebuild the solution.
