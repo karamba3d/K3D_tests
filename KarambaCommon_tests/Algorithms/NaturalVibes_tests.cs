@@ -21,6 +21,111 @@ namespace KarambaCommon.Tests.Algorithms
     public class NaturalVibes_tests
     {
         [Test]
+        public void Beam_in_mm()
+        {
+            // set the new basic length unit
+            var ini_reader = INIReader.Instance();
+
+            // switch here between mm and m
+            ini_reader.Values["UnitLength"] = "mm";
+            double length = 4000.0; // [mm]
+            /*
+            ini_reader.Values["UnitLength"] = "m";
+            double length = 4.0; // [m]
+            */
+
+            // clear all singletons
+            UnitsConversionFactory.ClearSingleton();
+            Material_Default.ClearSingleton();
+            CroSec_Default.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
+
+            var k3d = new Toolkit();
+            var logger = new MessageLogger();
+            var p0 = new Point3(0, 0, 0);
+            var p1 = new Point3(length, 0, 0);
+            var axis = new Line3(p0, p1);
+
+            var resourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+
+            // get a material from the material table in the folder 'Resources'
+            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
+            var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
+            var material = inMaterials.Find(x => x.name == "Steel");
+
+            // get a cross section from the cross section table in the folder 'Resources'
+            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.bin");
+            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
+            var crosec_family = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
+            var crosec_initial = crosec_family.Find(x => x.name == "FRQ45/5");
+
+            // attach the material to the cross section
+            crosec_initial.setMaterial(material);
+
+            // create the column
+            var beams = k3d.Part.LineToBeam(
+                new List<Line3> { axis },
+                new List<string>() { "B1" },
+                new List<CroSec>() { crosec_initial },
+                logger,
+                out var out_points);
+
+            // create supports
+            var supports = new List<Support>
+            {
+                k3d.Support.Support(p0, new List<bool>() { true, true, true, true, true, true }),
+                k3d.Support.Support(p1, new List<bool>() { false, true, true, true, true, true }),
+            };
+
+            // create a Point-load
+            var loads = new List<Load>();
+
+            // create the model
+            var model = k3d.Model.AssembleModel(
+                beams,
+                supports,
+                loads,
+                out info,
+                out var mass,
+                out var cog,
+                out var message,
+                out var warning);
+
+            // calculate the natural vibrations
+            int from_shape_ind = 1;
+            int shapes_num = 1;
+            int max_iter = 100;
+            double eps = 1e-8;
+            var disp_dummy = new List<double>();
+            var scaling = EigenShapesScalingType.matrix;
+            model = k3d.Algorithms.NaturalVibes(
+                model,
+                from_shape_ind,
+                shapes_num,
+                max_iter,
+                eps,
+                disp_dummy,
+                scaling,
+                out List<double> nat_frequencies,
+                out List<double> modal_masses,
+                out List<Vector3> participation_facs,
+                out List<double> participation_facs_disp,
+                out model);
+
+            Assert.That(nat_frequencies[0], Is.EqualTo(356.44751072373236).Within(1e-4));
+
+            // reset the new basic length unit
+            ini_reader.Values["UnitLength"] = "m";
+
+            // clear all singletons
+            UnitsConversionFactory.ClearSingleton();
+            Material_Default.ClearSingleton();
+            CroSec_Default.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
+            INIReader.ClearSingleton();
+        }
+
+        [Test]
         public void Beam()
         {
             var k3d = new Toolkit();
@@ -327,16 +432,21 @@ namespace KarambaCommon.Tests.Algorithms
             Assert.That(fTar, Is.EqualTo(fRes).Within(1e-4));
         }
 
-        // [Test]
+        [Test]
         public void SpringWithPointMassesImperial()
         {
+            // clear all singletons
+            UnitsConversionFactory.ClearSingleton();
+            Material_Default.ClearSingleton();
+            CroSec_Default.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
+
             var ini_reader = INIReader.Instance();
             ini_reader.Values["UnitsSystem"] = "imperial";
             ini_reader.Values["UnitLength"] = "ft";
             ini_reader.Values["UnitForce"] = "kipf";
             ini_reader.Values["UnitMass"] = "kipm";
             ini_reader.Values["gravity"] = "9.80665";
-            UnitsConversionFactory.ClearSingleton();
 
             var k3d = new Toolkit();
             var logger = new MessageLogger();
@@ -410,24 +520,32 @@ namespace KarambaCommon.Tests.Algorithms
             double fRes = nat_frequencies[0];
             Assert.That(fTar, Is.EqualTo(fRes).Within(1e-4));
 
-            ini_reader.Values["UnitsSystem"] = "SI";
+            // reset the new basic length unit
             ini_reader.Values["UnitLength"] = "m";
-            ini_reader.Values["UnitForce"] = "kN";
-            ini_reader.Values["UnitMass"] = "t";
-            ini_reader.Values["gravity"] = "10";
+
+            // clear all singletons
             UnitsConversionFactory.ClearSingleton();
+            Material_Default.ClearSingleton();
+            CroSec_Default.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
+            INIReader.ClearSingleton();
         }
 
-        // [Test]
+        [Test]
         public void BeamWithPointMassesImperial()
         {
+            // clear all singletons
+            UnitsConversionFactory.ClearSingleton();
+            Material_Default.ClearSingleton();
+            CroSec_Default.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
+
             var ini_reader = INIReader.Instance();
             ini_reader.Values["UnitsSystem"] = "imperial";
             ini_reader.Values["UnitLength"] = "ft";
             ini_reader.Values["UnitForce"] = "kipf";
             ini_reader.Values["UnitMass"] = "kipm";
             ini_reader.Values["gravity"] = "9.80665";
-            UnitsConversionFactory.ClearSingleton();
 
             var k3d = new Toolkit();
             var logger = new MessageLogger();
@@ -468,18 +586,18 @@ namespace KarambaCommon.Tests.Algorithms
             // create supports
             var supports = new List<Support>
             {
-                k3d.Support.Support(p0, new List<bool>() { true, true, true, true, true, true }),
-                k3d.Support.Support(p1, new List<bool>() { false, true, true, true, true, true }),
+                k3d.Support.Support(p0, new List<bool>() { false, true, true, true, true, true }),
+                k3d.Support.Support(p1, new List<bool>() { true, true, true, true, true, true }),
             };
 
             // create a Point-mass
-            double mass = 100; // [lb]
+            double mass = 100; // [lbm]
             var ucf = UnitsConversionFactory.Conv();
             var kg = ucf.kg();
             double massConverted = kg.toBase(mass);
             var loads = new List<Load>
             {
-                k3d.Load.PointMass(p1, massConverted, 0.1),
+                k3d.Load.PointMass(p0, massConverted, 0.1),
             };
 
             // create the model
@@ -516,18 +634,22 @@ namespace KarambaCommon.Tests.Algorithms
 
             double a = diameter * diameter * Math.PI / 4.0 / 144; // ft^2
             double c = e * a / length;
-            double totalMass = massConverted + a * length * gamma * 140.0 / 420.0;
+            double g = 9.80665 / 0.3048;
+            double totalMass = massConverted + a * length * gamma / g / 3.0;
             double omega = Math.Sqrt(c / totalMass);
             double fTar = omega / 2 / Math.PI;
             double fRes = nat_frequencies[0];
             Assert.That(fTar, Is.EqualTo(fRes).Within(1e-4));
 
-            ini_reader.Values["UnitsSystem"] = "SI";
+            // reset the new basic length unit
             ini_reader.Values["UnitLength"] = "m";
-            ini_reader.Values["UnitForce"] = "kN";
-            ini_reader.Values["UnitMass"] = "t";
-            ini_reader.Values["gravity"] = "10";
+
+            // clear all singletons
             UnitsConversionFactory.ClearSingleton();
+            Material_Default.ClearSingleton();
+            CroSec_Default.ClearSingleton();
+            UnitsConversionFactory.ClearSingleton();
+            INIReader.ClearSingleton();
         }
     }
 }

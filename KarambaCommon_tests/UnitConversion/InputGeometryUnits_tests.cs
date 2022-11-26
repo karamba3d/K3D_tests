@@ -49,7 +49,7 @@ namespace KarambaCommon.Tests.UnitConversion
                 null,
                 null,
                 out var info,
-                out var mass,
+                out var massStructure_base_units,
                 out var cog,
                 out var msg,
                 out var runtimeWarning,
@@ -58,10 +58,17 @@ namespace KarambaCommon.Tests.UnitConversion
             var gamma_steel = 78.5; // kN/m3
             var mass_tar = a / 10000 * l / 100 * gamma_steel * 0.1; // in tons
 
+            var mass = ucf.kg().toUnit(massStructure_base_units) / 1000;
+            Assert.That(mass_tar, Is.EqualTo(mass).Within(1e-6));
+
+            MessageLogger logger = new MessageLogger();
+            k3d.Model.Disassemble(model, logger, out outNodes, out var outLines, out var outMeshes, out var outBeams, out var outShells, out var outSupports, out var outLoads, out var outMaterials, out var outCroSecs, out var outJoints);
+            var bklLength = outBeams[0].BucklingLength(BuilderElementStraightLine.BucklingDir.bklY);
+            // -4.0 because there are two loose ends
+            Assert.That(-4.0 * l, Is.EqualTo(bklLength).Within(1e-6));
+
             ini_reader.Values["UnitLength"] = "m";
             UnitsConversionFactory.ClearSingleton();
-
-            Assert.That(mass_tar, Is.EqualTo(mass).Within(1e-6));
         }
 
         [Test]

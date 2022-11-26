@@ -1,5 +1,5 @@
 // ***********************************************************************
-// Copyright (c) 2021 Charlie Poole, Rob Prouse
+// Copyright (c) 2022 Charlie Poole, Rob Prouse
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -21,12 +21,10 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
+using NUnitLite;
+
 namespace NUnitLite.Tests
 {
-    using System;
-    using Karamba.Utilities;
-    using NUnitLite;
-
     public static class Program
     {
         /// <summary>
@@ -37,19 +35,7 @@ namespace NUnitLite.Tests
         /// <param name="args"></param>
         public static int Main(string[] args)
         {
-            // set the system of physical units to SI
-            INIReader.ClearSingleton();
-            UnitsConversionFactory.ClearSingleton();
-
-            var ini = INIReader.Instance();
-            ini.Values["UnitsSystem"] = "SI";
-            ini.Values["gravity"] = "10.0";
-
-            // run the tests
-            var res = new AutoRun().Execute(args);
-            Console.WriteLine("Press any key to close");
-            Console.ReadKey();
-            return res;
+            return new AutoRun().Execute(args);
         }
     }
 }

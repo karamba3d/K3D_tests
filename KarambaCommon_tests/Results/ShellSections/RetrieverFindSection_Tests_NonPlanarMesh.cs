@@ -27,7 +27,7 @@ namespace KarambaCommon.Tests.Result.ShellSection
             var inputModel = MakeNonConvexModel();
 
             var info = new RetrieverInfo_Force(inputModel, inputPolyline, inputProjectionVector, _tol, delta, "0", new List<string> { string.Empty }, new List<Guid>());
-            var strategy = new RetrieverStrategy_Force();
+            var strategy = new RetrieverStrategy_Force(1, 1);
             var sut = new Karamba.Results.ShellSection.Retriever(strategy, info);
 
             sut.FindSection(out var outputPolylines, out var outputFaceIndxs);

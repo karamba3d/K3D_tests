@@ -50,8 +50,8 @@ namespace KarambaCommon.Tests.Result.ShellSection
             var expectedPosition = new Point3[] { new Point3(0, 0, 1), new Point3(0.5, 0, 2), new Point3(1, 0, 3) };
             var expectedText = new string[]
             {
-                string.Format(info.TextFormat, 100), string.Format(info.TextFormat, 200),
-                string.Format(info.TextFormat, 300),
+                string.Format(info.TextFormat, 1), string.Format(info.TextFormat, 2),
+                string.Format(info.TextFormat, 3),
             };
 
             var sut = new ShellSec_NumberRenderer(mock);

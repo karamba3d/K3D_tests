@@ -9,17 +9,81 @@ namespace KarambaCommon.Tests.Serialization
     using System.Reflection;
     using System.Runtime.Serialization;
     using Karamba.CrossSections;
+    using Karamba.Elements;
     using Karamba.Geometry;
     using Karamba.Loads;
     using Karamba.Supports;
     using Karamba.Utilities;
+    using KarambaCommon_tests.Helpers;
     using Newtonsoft.Json;
     using NUnit.Framework;
 
     [TestFixture]
     public class Serialization_Tests
     {
-        // [Test]
+        /// <summary>
+        /// Multi-story frame under wind- and live-load. See test examples 'TestExamples\06_Algorithms\OptiCroSec\OptiCroSec_Frame.gh'
+        /// </summary>
+        [Test]
+        public void MeshLoad()
+        {
+            var logger = new MessageLogger();
+            var k3d = new Toolkit();
+
+            var beamLength = 5.0;
+            var beam = k3d.Part.LineToBeam(
+                line: new Line3(
+                    new Point3(0, 0, 0),
+                    new Point3(beamLength, 0, 0)),
+                id: string.Empty,
+                crosec: null,
+                info: logger,
+                out _);
+
+            var hc0 = k3d.Support.SupportHingedConditions;
+            var hc1 = new List<bool> { false, true, true, true, false, false };
+            var supports = new List<Support>
+            {
+                k3d.Support.Support(0, hc0),
+                k3d.Support.Support(1, hc1),
+            };
+
+            var loadMesh = MeshFactory.RectangularMeshXy(
+                    new Point3(0, -beamLength * 0.5, 0),
+                    beamLength,
+                    beamLength,
+                    1,
+                    1);
+
+            List<Load> loads = new List<Load>
+            {
+                k3d.Load.MeshLoad(
+                    new List<Vector3>() { new Vector3(0, 0, 1) },
+                    loadMesh,
+                    LoadOrientation.local,
+                    false,
+                    true,
+                    null,
+                    new List<string>() { "column" }),
+            };
+
+            var model = k3d.Model.AssembleModel(
+                beam,
+                supports,
+                loads,
+                out _,
+                out _,
+                out _,
+                out _,
+                out _);
+
+            // serialize model using json
+            var serModel = ModelSerializer.ToJson(model);
+
+            Assert.That(serModel, !Is.EqualTo(string.Empty));
+        }
+
+        [Test]
         public void MultiMap()
         {
             var multiMap = new MultiMap<int, List<int>>();
@@ -37,7 +101,7 @@ namespace KarambaCommon.Tests.Serialization
             Assert.That(item2[1][0], Is.EqualTo(7));
         }
 
-        // [Test]
+        [Test]
         public void BeamModelBinarySerialization()
         {
             var k3d = new Toolkit();

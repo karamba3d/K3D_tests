@@ -37,7 +37,7 @@ namespace KarambaCommon.Tests.Result.ShellSection
             var tol = 1E-12;
             var delta = 0.02;
             var info = new RetrieverInfo_Force(inputModel, inputPolyline, inputProjectionVector, tol, delta, "0", new List<string> { string.Empty }, new List<Guid>());
-            var strategy = new RetrieverStrategy_Force();
+            var strategy = new RetrieverStrategy_Force(1, 1);
             var sut = new Karamba.Results.ShellSection.Retriever(strategy, info);
             _tol = tol;
 

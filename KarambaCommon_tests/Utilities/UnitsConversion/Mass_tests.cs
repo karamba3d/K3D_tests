@@ -63,13 +63,15 @@ namespace KarambaCommon.Tests.Model
                 null,
                 null,
                 out _,
-                out var mass,
+                out var mass_base_unit,
                 out _,
                 out _,
                 out _,
                 new List<Joint>(),
                 points);
 
+            var ucf = UnitsConversionFactory.Conv();
+            var mass = ucf.kg().toUnit(mass_base_unit) / 1000;
             // clear temporary changes to the the ini-file and units-conversion
             INIReader.ClearSingleton();
             UnitsConversionFactory.ClearSingleton();

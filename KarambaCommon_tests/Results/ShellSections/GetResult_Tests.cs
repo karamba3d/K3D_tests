@@ -94,7 +94,7 @@ namespace KarambaCommon.Tests.Result.ShellSection
         [Test]
         public void GetResult_RetrieveForce()
         {
-            RetrieverStrategy_Force strategy = new RetrieverStrategy_Force();
+            RetrieverStrategy_Force strategy = new RetrieverStrategy_Force(1, 1);
             var retrieverInfo = new RetrieverInfo_Force(_model, _inputPolyline, _projectionVector, _tol, _delta, "0", new List<string> { string.Empty }, new List<Guid>());
             Retriever sub = new Retriever(strategy, retrieverInfo);
 
@@ -128,7 +128,8 @@ namespace KarambaCommon.Tests.Result.ShellSection
         [Test]
         public void GetResult_RetrieveDisplacement()
         {
-            var strategy = new RetrieverStrategy_Displacement();
+            double lengthConversionFak = UnitsConversionFactory.Conv().m().toUnit(1);
+            var strategy = new RetrieverStrategy_Displacement(lengthConversionFak);
             var retrieverInfo = new RetrieverInfo_Displacement(
                 _model,
                 _inputPolyline,
@@ -158,7 +159,7 @@ namespace KarambaCommon.Tests.Result.ShellSection
         [Test]
         public void GetResult_RetrieveStressAndStrain()
         {
-            var strategy = new RetrieverStrategy_StressStrain();
+            var strategy = new RetrieverStrategy_StressStrain(0.0001, 1000);
             var retrieverInfo = new RetrieverInfo_StressStrain(
                 _model,
                 _inputPolyline,

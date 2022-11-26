@@ -119,7 +119,7 @@ namespace KarambaCommon.Tests.Result.ShellSection
         public Karamba.Results.ShellSection.Retriever GetNewRetriever(PolyLine3 poly)
         {
             var info = new RetrieverInfo_Force(_model, poly, _projectionVector, _tol, _delta, "0", new List<string> { string.Empty }, new List<Guid>());
-            var strategy = new RetrieverStrategy_Force();
+            var strategy = new RetrieverStrategy_Force(1, 1);
             return new Karamba.Results.ShellSection.Retriever(strategy, info);
         }
 
