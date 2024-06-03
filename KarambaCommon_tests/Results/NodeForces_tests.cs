@@ -2,27 +2,21 @@
 
 namespace KarambaCommon.Tests.Result
 {
-    using System;
     using System.Collections.Generic;
-    using System.Drawing;
-    using System.IO;
     using System.Linq;
-    using System.Reflection;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Karamba.Algorithms;
     using Karamba.CrossSections;
     using Karamba.Elements;
+    using Karamba.Elements.States;
     using Karamba.Geometry;
-    using Karamba.Joints;
     using Karamba.Loads;
-    using Karamba.Loads.Combinations;
     using Karamba.Materials;
     using Karamba.Models;
     using Karamba.Results;
     using Karamba.Supports;
     using Karamba.Utilities;
+    using KarambaCommon;
     using NUnit.Framework;
+    using Helper = KarambaCommon.Tests.Helpers.Helper;
 
     [TestFixture]
     public class NodeForces_tests
@@ -30,41 +24,39 @@ namespace KarambaCommon.Tests.Result
         [Test]
         public void FrameCorner()
         {
-            var k3d = new Toolkit();
-            var logger = new MessageLogger();
+            Toolkit k3d = new Toolkit();
+            MessageLogger logger = new MessageLogger();
             double l = 4.0;
-            var p0 = new Point3(-l, 0, 0);
-            var p1 = new Point3(0, 0, l);
-            var p2 = new Point3(l, 0, 0);
-            var line1 = new Line3(p0, p1);
-            var line2 = new Line3(p1, p2);
-
-            var resourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+            Point3 p0 = new Point3(-l, 0, 0);
+            Point3 p1 = new Point3(0, 0, l);
+            Point3 p2 = new Point3(l, 0, 0);
+            Line3 line1 = new Line3(p0, p1);
+            Line3 line2 = new Line3(p1, p2);
 
             // get a material from the material table in the folder 'Resources'
-            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
-            var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
-            var material = inMaterials.Find(x => x.name == "Steel");
+            string materialPath = PathUtil.MaterialPropertiesFile();
+            List<FemMaterial> inMaterials = k3d.Material.ReadMaterialTable(materialPath);
+            FemMaterial material = inMaterials.Find(x => x.name == "Steel");
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.bin");
-            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
-            var croSecFamily = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
-            var croSecInitial = croSecFamily.Find(x => x.name == "FRQ45/5");
+            string crosecPath = PathUtil.CrossSectionValuesFile();
+            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out string info);
+            List<CroSec> croSecFamily = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
+            CroSec croSecInitial = croSecFamily.Find(x => x.name == "FRQ45/5");
 
             // attach the material to the cross section
             croSecInitial.setMaterial(material);
 
             // create the column
-            var beams = k3d.Part.LineToBeam(
+            List<BuilderBeam> beams = k3d.Part.LineToBeam(
                 new List<Line3> { line1, line2 },
                 new List<string>() { "B1" },
                 new List<CroSec>() { croSecInitial },
                 logger,
-                out var out_points);
+                out List<Point3> out_points);
 
             // create supports
-            var supports = new List<Support>
+            List<Support> supports = new List<Support>
             {
                 k3d.Support.Support(p0, new List<bool>() { true, true, true, true, false, true }),
                 k3d.Support.Support(p2, new List<bool>() { true, true, true, true, false, true }),
@@ -72,15 +64,15 @@ namespace KarambaCommon.Tests.Result
 
             // create a Point-load
             double fx = 10;
-            var loads = new List<Load> { k3d.Load.PointLoad(p1, new Vector3(fx, 0, 0), new Vector3()) };
+            List<Load> loads = new List<Load> { k3d.Load.PointLoad(p1, new Vector3(fx, 0, 0), new Vector3()) };
 
             // create the model
-            var model = k3d.Model.AssembleModel(beams, supports, loads, out info, out var mass, out var cog, out var message, out var warning);
-            var calcModel = k3d.Algorithms.AnalyzeThI(model, out var displacement, out var gravities, out var energies, out var warnings);
+            Model model = k3d.Model.AssembleModel(beams, supports, loads, out info, out double mass, out Point3 cog, out string message, out bool warning);
+            Model calcModel = k3d.Algorithms.AnalyzeThI(model, out IReadOnlyList<double> displacement, out IReadOnlyList<double> gravities, out IReadOnlyList<double> energies, out string warnings);
 
-            NodeForces.solve(calcModel, 1, new Plane3(), "-1", false, false, out var nodeForcesResults);
-            var sumX = nodeForcesResults[0].Forces[0].X + nodeForcesResults[1].Forces[0].X + fx;
-            var sumZ = nodeForcesResults[0].Forces[0].Z + nodeForcesResults[1].Forces[0].Z;
+            NodeForces.solve(calcModel, 1, new Plane3(), "LC0", false, false, out List<NodeForces.NodeForcesResult> nodeForcesResults);
+            double sumX = nodeForcesResults[0].Forces[0].X + nodeForcesResults[1].Forces[0].X + fx;
+            double sumZ = nodeForcesResults[0].Forces[0].Z + nodeForcesResults[1].Forces[0].Z;
             Assert.That(sumX, Is.EqualTo(0.0).Within(1E-8));
             Assert.That(sumZ, Is.EqualTo(0.0).Within(1E-8));
         }
@@ -88,46 +80,44 @@ namespace KarambaCommon.Tests.Result
         [Test]
         public void FrameCornerOriented()
         {
-            var k3d = new Toolkit();
-            var logger = new MessageLogger();
+            Toolkit k3d = new Toolkit();
+            MessageLogger logger = new MessageLogger();
             double l = 4.0;
-            var p0 = new Point3(-l, 0, 0);
-            var p1 = new Point3(0, 0, l);
-            var p2 = new Point3(l, 0, 0);
-            var line1 = new Line3(p0, p1);
-            var line2 = new Line3(p1, p2);
-
-            var resourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+            Point3 p0 = new Point3(-l, 0, 0);
+            Point3 p1 = new Point3(0, 0, l);
+            Point3 p2 = new Point3(l, 0, 0);
+            Line3 line1 = new Line3(p0, p1);
+            Line3 line2 = new Line3(p1, p2);
 
             // get a material from the material table in the folder 'Resources'
-            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
-            var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
-            var material = inMaterials.Find(x => x.name == "Steel");
+            string materialPath = PathUtil.MaterialPropertiesFile();
+            List<FemMaterial> inMaterials = k3d.Material.ReadMaterialTable(materialPath);
+            FemMaterial material = inMaterials.Find(x => x.name == "Steel");
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.bin");
-            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
-            var croSecFamily = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
-            var croSecInitial = croSecFamily.Find(x => x.name == "FRQ45/5");
+            string crosecPath = PathUtil.CrossSectionValuesFile();
+            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out string info);
+            List<CroSec> croSecFamily = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
+            CroSec croSecInitial = croSecFamily.Find(x => x.name == "FRQ45/5");
 
             // attach the material to the cross section
             croSecInitial.setMaterial(material);
 
             // create the column
-            var beams = k3d.Part.LineToBeam(
+            List<BuilderBeam> beams = k3d.Part.LineToBeam(
                 new List<Line3> { line1, line2 },
                 new List<string>() { "B1" },
                 new List<CroSec>() { croSecInitial },
                 logger,
-                out var out_points);
+                out List<Point3> out_points);
 
             // change the default orientation of beam #0
-            var ori = beams[0].Ori.Writer;
+            IBuilderElementOrientationWriter ori = beams[0].Ori.Writer;
             ori.XOri = line1.PointAtStart - line1.PointAtEnd;
             beams[0].Ori = ori.Reader;
 
             // create supports
-            var supports = new List<Support>
+            List<Support> supports = new List<Support>
             {
                 k3d.Support.Support(p0, new List<bool>() { true, true, true, true, false, true }),
                 k3d.Support.Support(p2, new List<bool>() { true, true, true, true, false, true }),
@@ -135,15 +125,15 @@ namespace KarambaCommon.Tests.Result
 
             // create a Point-load
             double fx = 10;
-            var loads = new List<Load> { k3d.Load.PointLoad(p1, new Vector3(fx, 0, 0), new Vector3()) };
+            List<Load> loads = new List<Load> { k3d.Load.PointLoad(p1, new Vector3(fx, 0, 0), new Vector3()) };
 
             // create the model
-            var model = k3d.Model.AssembleModel(beams, supports, loads, out info, out var mass, out var cog, out var message, out var warning);
-            var calcModel = k3d.Algorithms.AnalyzeThI(model, out var displacement, out var gravities, out var energies, out var warnings);
+            Model model = k3d.Model.AssembleModel(beams, supports, loads, out info, out double mass, out Point3 cog, out string message, out bool warning);
+            Model calcModel = k3d.Algorithms.AnalyzeThI(model, out IReadOnlyList<double> displacement, out IReadOnlyList<double> gravities, out IReadOnlyList<double> energies, out string warnings);
 
-            NodeForces.solve(calcModel, 1, new Plane3(), "-1", false, false, out var nodeForcesResults);
-            var sumX = nodeForcesResults[0].Forces[0].X + nodeForcesResults[1].Forces[0].X + fx;
-            var sumZ = nodeForcesResults[0].Forces[0].Z + nodeForcesResults[1].Forces[0].Z;
+            NodeForces.solve(calcModel, 1, new Plane3(), "LC0", false, false, out List<NodeForces.NodeForcesResult> nodeForcesResults);
+            double sumX = nodeForcesResults[0].Forces[0].X + nodeForcesResults[1].Forces[0].X + fx;
+            double sumZ = nodeForcesResults[0].Forces[0].Z + nodeForcesResults[1].Forces[0].Z;
             Assert.That(sumX, Is.EqualTo(0.0).Within(1E-8));
             Assert.That(sumZ, Is.EqualTo(0.0).Within(1E-8));
         }
@@ -151,50 +141,48 @@ namespace KarambaCommon.Tests.Result
         [Test]
         public void FrameCornerOrientedEccentric()
         {
-            var k3d = new Toolkit();
-            var logger = new MessageLogger();
+            Toolkit k3d = new Toolkit();
+            MessageLogger logger = new MessageLogger();
             double l = 4.0;
-            var p0 = new Point3(-l, 0, 0);
-            var p1 = new Point3(0, 0, 0);
-            var p2 = new Point3(l, 0, 0);
-            var line1 = new Line3(p0, p1);
-            var line2 = new Line3(p1, p2);
-
-            var resourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+            Point3 p0 = new Point3(-l, 0, 0);
+            Point3 p1 = new Point3(0, 0, 0);
+            Point3 p2 = new Point3(l, 0, 0);
+            Line3 line1 = new Line3(p0, p1);
+            Line3 line2 = new Line3(p1, p2);
 
             // get a material from the material table in the folder 'Resources'
-            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
-            var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
-            var material = inMaterials.Find(x => x.name == "Steel");
+            string materialPath = PathUtil.MaterialPropertiesFile();
+            List<FemMaterial> inMaterials = k3d.Material.ReadMaterialTable(materialPath);
+            FemMaterial material = inMaterials.Find(x => x.name == "Steel");
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.bin");
-            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
-            var croSecFamily = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
-            var croSecInitial = croSecFamily.Find(x => x.name == "FRQ45/5");
+            string crosecPath = PathUtil.CrossSectionValuesFile();
+            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out string info);
+            List<CroSec> croSecFamily = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
+            CroSec croSecInitial = croSecFamily.Find(x => x.name == "FRQ45/5");
 
             // attach the material to the cross section
             croSecInitial.setMaterial(material);
 
             // create the column
-            var beams = k3d.Part.LineToBeam(
+            List<BuilderBeam> beams = k3d.Part.LineToBeam(
                 new List<Line3> { line1, line2 },
                 new List<string>() { "B1" },
                 new List<CroSec>() { croSecInitial },
                 logger,
-                out var out_points);
+                out List<Point3> out_points);
 
             // change the default orientation of beam #0
-            var ori = beams[0].Ori.Writer;
+            IBuilderElementOrientationWriter ori = beams[0].Ori.Writer;
             ori.XOri = line1.PointAtStart - line1.PointAtEnd;
             beams[0].Ori = ori.Reader;
 
             // change the eccentricity of beam #0
             double ecc = 0.5;
-            beams[1].ecce_loc = new Vector3(ecc, ecc, ecc);
+            beams[0].ecce_loc = new Vector3(ecc, ecc, ecc);
 
             // create supports
-            var supports = new List<Support>
+            List<Support> supports = new List<Support>
             {
                 k3d.Support.Support(p0, new List<bool>() { true, true, true, true, true, true }),
             };
@@ -203,71 +191,83 @@ namespace KarambaCommon.Tests.Result
             double fx = 1;
             double fy = 2;
             double fz = 3;
-            var loads = new List<Load> { k3d.Load.PointLoad(p2, new Vector3(fx, fy, fz), new Vector3()) };
+            List<Load> loads = new List<Load> { k3d.Load.PointLoad(p2, new Vector3(fx, fy, fz), new Vector3()) };
 
             // create the model
-            var model = k3d.Model.AssembleModel(beams, supports, loads, out info, out var mass, out var cog, out var message, out var warning);
-            var calcModel = k3d.Algorithms.AnalyzeThI(model, out var displacement, out var gravities, out var energies, out var warnings);
+            Model model = k3d.Model.AssembleModel(beams, supports, loads, out info, out double mass, out Point3 cog, out string message, out bool warning);
+            Model calcModel = k3d.Algorithms.AnalyzeThI(model, out IReadOnlyList<double> displacement, out IReadOnlyList<double> gravities, out IReadOnlyList<double> energies, out string warnings);
 
-            NodeForces.solve(calcModel, 1, new Plane3(), "-1", false, false, out var nodeForcesResults);
-            var sumFx = nodeForcesResults[0].Forces[0].X + nodeForcesResults[1].Forces[0].X;
-            var sumFz = nodeForcesResults[0].Forces[0].Z + nodeForcesResults[1].Forces[0].Z;
-            var sumMx = nodeForcesResults[0].Moments[0].X + nodeForcesResults[1].Moments[0].X;
-            var sumMy = nodeForcesResults[0].Moments[0].Y + nodeForcesResults[1].Moments[0].Y;
-            var sumMz = nodeForcesResults[0].Moments[0].Z + nodeForcesResults[1].Moments[0].Z;
+            NodeForces.solve(calcModel, 1, new Plane3(), "LC0", false, false, out List<NodeForces.NodeForcesResult> nodeForcesResults);
+            double sumFx = nodeForcesResults[0].Forces[0].X + nodeForcesResults[1].Forces[0].X;
+            double sumFz = nodeForcesResults[0].Forces[0].Z + nodeForcesResults[1].Forces[0].Z;
+            double sumMx = nodeForcesResults[0].Moments[0].X + nodeForcesResults[1].Moments[0].X;
+            double sumMy = nodeForcesResults[0].Moments[0].Y + nodeForcesResults[1].Moments[0].Y;
+            double sumMz = nodeForcesResults[0].Moments[0].Z + nodeForcesResults[1].Moments[0].Z;
             Assert.That(sumFx, Is.EqualTo(0.0).Within(1E-8));
             Assert.That(sumFz, Is.EqualTo(0.0).Within(1E-8));
             Assert.That(sumMx, Is.EqualTo(0.0).Within(1E-8));
             Assert.That(sumMy, Is.EqualTo(0.0).Within(1E-8));
             Assert.That(sumMz, Is.EqualTo(0.0).Within(1E-8));
 
-            var statesCollection0 = ((ModelElementStraightLine)model.elems[0]).GetElementStates(model, new LCSuperPosition(0, model), new List<double> { 0.5 });
-            var my0 = statesCollection0.First().GetForce(BeamDofs.r_y);
-            var statesCollection1 = ((ModelElementStraightLine)model.elems[0]).GetElementStates(model, new LCSuperPosition(0, model), new List<double> { 0.5 });
-            var my1 = statesCollection1.First().GetForce(BeamDofs.r_y);
-            Assert.That(my0, Is.EqualTo(0.0).Within(1E-8));
-            Assert.That(my1, Is.EqualTo(0.0).Within(1E-8));
+            var state1 = ((ModelElementStraightLine)model.elems[0]).GetState1D(
+                0.5,
+                model,
+                new StateElement1DSelectorIndex(model, model.lcActivation.LoadCaseCombinations.First()),
+                isCurveReparametrized: true,
+                out _,
+                out _);
+            var my0 = state1.GetResult(Element1DOption.My, out _);
+
+            var lcc = model.lcActivation.LoadCaseCombinations.First();
+            var state2 = ((ModelElementStraightLine)model.elems[0]).GetState1D(
+                0.5,
+                model,
+                new StateElement1DSelectorIndex(model, lcc),
+                isCurveReparametrized: true,
+                out _,
+                out _);
+            var my1 = state2.GetResult(Element1DOption.My, out _);
+            Assert.That(my0.First(), Is.EqualTo(0.0).Within(1E-8));
+            Assert.That(my1.First(), Is.EqualTo(0.0).Within(1E-8));
         }
 
         [Test]
         public void CrossEccentric()
         {
-            var k3d = new Toolkit();
-            var logger = new MessageLogger();
+            Toolkit k3d = new Toolkit();
+            MessageLogger logger = new MessageLogger();
             double l = 4.0;
-            var p0 = new Point3(-l, 0, 0);
-            var p1 = new Point3(0, 0, 0);
-            var p2 = new Point3(l, 0, 0);
-            var p3 = new Point3(0, 0, -l);
-            var p4 = new Point3(0, 0, l);
-            var line1 = new Line3(p0, p1);
-            var line2 = new Line3(p1, p2);
-            var line3 = new Line3(p3, p1);
-            var line4 = new Line3(p1, p4);
-
-            var resourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+            Point3 p0 = new Point3(-l, 0, 0);
+            Point3 p1 = new Point3(0, 0, 0);
+            Point3 p2 = new Point3(l, 0, 0);
+            Point3 p3 = new Point3(0, 0, -l);
+            Point3 p4 = new Point3(0, 0, l);
+            Line3 line1 = new Line3(p0, p1);
+            Line3 line2 = new Line3(p1, p2);
+            Line3 line3 = new Line3(p3, p1);
+            Line3 line4 = new Line3(p1, p4);
 
             // get a material from the material table in the folder 'Resources'
-            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
-            var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
-            var material = inMaterials.Find(x => x.name == "Steel");
+            string materialPath = PathUtil.MaterialPropertiesFile();
+            List<FemMaterial> inMaterials = k3d.Material.ReadMaterialTable(materialPath);
+            FemMaterial material = inMaterials.Find(x => x.name == "Steel");
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.bin");
-            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
-            var croSecFamily = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
-            var croSecInitial = croSecFamily.Find(x => x.name == "FRQ45/5");
+            string crosecPath = PathUtil.CrossSectionValuesFile();
+            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out string info);
+            List<CroSec> croSecFamily = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
+            CroSec croSecInitial = croSecFamily.Find(x => x.name == "FRQ45/5");
 
             // attach the material to the cross section
             croSecInitial.setMaterial(material);
 
             // create the column
-            var beams = k3d.Part.LineToBeam(
+            List<BuilderBeam> beams = k3d.Part.LineToBeam(
                 new List<Line3> { line1, line2, line3, line4 },
                 new List<string>() { "B1" },
                 new List<CroSec>() { croSecInitial },
                 logger,
-                out var out_points);
+                out List<Point3> out_points);
 
             // change the eccentricity of beam #2, #3
             double ecc = 0.5;
@@ -275,24 +275,23 @@ namespace KarambaCommon.Tests.Result
             beams[3].ecce_glo = new Vector3(0, ecc, 0);
 
             // create supports
-            var supports = new List<Support>
+            List<Support> supports = new List<Support>
             {
                 k3d.Support.Support(p0, new List<bool>() { true, true, true, true, true, true }),
             };
 
             // create a Point-load
             double fx = 1;
-            var loads = new List<Load>
+            List<Load> loads = new List<Load>
             {
                 k3d.Load.PointLoad(p3, new Vector3(fx, 0, 0), new Vector3()),
                 k3d.Load.PointLoad(p4, new Vector3(-fx, 0, 0), new Vector3()),
             };
 
             // create the model
-            var model = k3d.Model.AssembleModel(beams, supports, loads, out info, out var mass, out var cog, out var message, out var warning);
-            var calcModel = k3d.Algorithms.AnalyzeThI(model, out var displacement, out var gravities, out var energies, out var warnings);
-
-            NodeForces.solve(calcModel, 1, new Plane3(), "-1", false, false, out var nodeForcesResults);
+            Model model = k3d.Model.AssembleModel(beams, supports, loads, out info, out double mass, out Point3 cog, out string message, out bool warning);
+            Model calcModel = k3d.Algorithms.AnalyzeThI(model, out IReadOnlyList<double> displacement, out IReadOnlyList<double> gravities, out IReadOnlyList<double> energies, out string warnings);
+            NodeForces.solve(calcModel, 1, new Plane3(), "LC0", false, false, out List<NodeForces.NodeForcesResult> nodeForcesResults);
             double sumFx = 0;
             for (int i = 0; i < 4; ++i)
             {
@@ -329,10 +328,11 @@ namespace KarambaCommon.Tests.Result
             Assert.That(sumMy, Is.EqualTo(0.0).Within(1E-8));
             Assert.That(sumMz, Is.EqualTo(0.0).Within(1E-8));
 
-            var statesCollection0 = ((ModelElementStraightLine)model.elems[0]).GetElementStates(model, new LCSuperPosition(0, model), new List<double> { 0.5 });
-            var my0 = statesCollection0.First().GetForce(BeamDofs.r_y);
-            var statesCollection1 = ((ModelElementStraightLine)model.elems[0]).GetElementStates(model, new LCSuperPosition(0, model), new List<double> { 0.5 });
-            var my1 = statesCollection1.First().GetForce(BeamDofs.r_y);
+            var lcc = model.lcActivation.LoadCaseCombinations.First();
+            var state0 = ((ModelElementStraightLine)model.elems[0]).GetState1D(0.5, model, new StateElement1DSelectorIndex(model, lcc), isCurveReparametrized: true, out _, out _);
+            var my0 = state0.GetResult(Element1DOption.RotY, out _).First();
+            var state1 = ((ModelElementStraightLine)model.elems[0]).GetState1D(0.5, model, new StateElement1DSelectorIndex(model, lcc), isCurveReparametrized: true, out _, out _);
+            var my1 = state1.GetResult(Element1DOption.RotY, out _).First();
             Assert.That(my0, Is.EqualTo(0.0).Within(1E-8));
             Assert.That(my1, Is.EqualTo(0.0).Within(1E-8));
         }

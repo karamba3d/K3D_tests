@@ -1,10 +1,5 @@
-﻿namespace KarambaCommon_tests.Helpers
+﻿namespace KarambaCommon.Tests.Helpers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using Karamba.Geometry;
 
     public static class MeshFactory
@@ -28,7 +23,7 @@
             {
                 for (int j = 0; j <= nY; ++j)
                 {
-                    m.AddVertex(new Point3(fromP.X + i * dx, fromP.Y + j * dy, fromP.Z));
+                    _ = m.AddVertex(new Point3(fromP.X + i * dx, fromP.Y + j * dy, fromP.Z));
                 }
             }
 
@@ -37,7 +32,10 @@
             {
                 for (int j = 0; j < nY; ++j)
                 {
-                    m.AddFace(new Face3(i * nY1 + j, (i + 1) * nY1 + j, (i + 1) * nY1 + j + 1, i * nY1 + j + 1));
+                    int a = i * nY1 + j;
+                    int b = (i + 1) * nY1 + j;
+                    _ = m.AddFace(new Face3(a, b, b + 1, a + 1));
+                    // was: i * nY1 + j, (i + 1) * nY1 + j, (i + 1) * nY1 + j + 1, i * nY1 + j + 1
                 }
             }
 
@@ -53,6 +51,7 @@
         /// <param name="nY">Number of faces in Y-direction</param>
         /// <param name="nZ">Number of faces in Z-direction</param>
         /// <returns></returns>
+        // XXX DRY!!! just different order
         public static Mesh3 RectangularMeshYz(Point3 fromP, double ly, double lz, int nY, int nZ)
         {
             var m = new Mesh3();
@@ -63,7 +62,7 @@
             {
                 for (int j = 0; j <= nZ; ++j)
                 {
-                    m.AddVertex(new Point3(fromP.X, fromP.Y + i * dy, fromP.Z + j * dz));
+                    _ = m.AddVertex(new Point3(fromP.X, fromP.Y + i * dy, fromP.Z + j * dz));
                 }
             }
 
@@ -72,7 +71,9 @@
             {
                 for (int j = 0; j < nZ; ++j)
                 {
-                    m.AddFace(new Face3(i * nZ1 + j, (i + 1) * nZ1 + j, (i + 1) * nZ1 + j + 1, i * nZ1 + j + 1));
+                    int a = i * nZ1 + j;
+                    int b = (i + 1) * nZ1 + j;
+                    _ = m.AddFace(new Face3(a, b, b + 1, a + 1));
                 }
             }
 

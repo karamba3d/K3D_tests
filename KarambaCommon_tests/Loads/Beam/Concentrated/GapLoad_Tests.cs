@@ -2,29 +2,25 @@
 namespace KarambaCommon.Tests.Loads
 {
     using System;
-    using System.CodeDom;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
     using feb;
     using Karamba.CrossSections;
     using Karamba.Geometry;
     using Karamba.Loads;
     using Karamba.Loads.Beam;
-    using Karamba.Utilities;
+    using Karamba.Models;
+    using KarambaCommon.Tests.Helpers;
+    using KarambaCommon.Tests.Loads;
+    using KarambaCommon;
     using NUnit.Framework;
-    using NUnitLite.Tests.Helpers;
 
     [TestFixture(LoadTypes.Translational)]
     [TestFixture(LoadTypes.Rotational)]
-    public class GapLoads_Tests<T>
+    public class GapLoads_Tests_T
     {
         private LoadTypes _loadType;
 
-        public GapLoads_Tests(LoadTypes type)
-        {
-            _loadType = type;
-        }
+        public GapLoads_Tests_T(LoadTypes type) => _loadType = type;
 
         private class TestLoadArgs
         {
@@ -98,19 +94,21 @@ namespace KarambaCommon.Tests.Loads
         public void Constructor_NewLoad_WillInstantiateNewFebLoads()
         {
             // Arrange
-            var args = new TestLoadArgs
+            TestLoadArgs args = new TestLoadArgs
             {
                 BeamIds = new List<string> { string.Empty },
                 LcName = string.Empty,
                 Values = new Vector3(0, 0, 1),
                 Position = 0.5,
             };
-            var load = CreateTestLoad(args);
-            var k3d = new Toolkit();
+            ConcentratedLoad load = CreateTestLoad(args);
+            Toolkit k3d = new Toolkit();
 
             // Act
-            var model = BeamFactory.CreateHingedBeam(10, load, k3d.CroSec.CircularHollow());
-            var febLoads = model.febmodel.element(0).loadCase(0);
+            Karamba.Models.Model model = BeamFactory.CreateHingedBeam(10, load, k3d.CroSec.CircularHollow());
+            ModelBuilderFEB.AddLoadsAndSupports(model, model.lcActivation);
+
+            LoadCaseElement febLoads = model.febmodel.element(0).load_case(0);
 
             // Assert
             Assert.That(febLoads.size(), Is.EqualTo(1));
@@ -120,21 +118,21 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void FixedBeam_Rotational_GapAtMidPoint()
         {
-            var k3d = new Toolkit();
-            var theta = new Vector3(0.1, 0.2, 0.3);
-            var load = k3d.Load.RotationalGapLoad(0.5, theta);
+            Toolkit k3d = new Toolkit();
+            Vector3 theta = new Vector3(0.1, 0.2, 0.3);
+            RotationalGap load = k3d.Load.RotationalGapLoad(0.5, theta);
 
             // Act
             const double length = 10.0;
-            var model = BeamFactory.CreateFixedFixedBeam(length, load, k3d.CroSec.CircularHollow());
+            Karamba.Models.Model model = BeamFactory.CreateFixedFixedBeam(length, load, k3d.CroSec.CircularHollow());
             model = k3d.Algorithms.AnalyzeThI(
                 model,
-                out var outMaxDisp,
-                out var out_g,
-                out var out_comp,
-                out var message);
+                out IReadOnlyList<double> outMaxDisp,
+                out IReadOnlyList<double> out_g,
+                out IReadOnlyList<double> out_comp,
+                out string message);
 
-            var crosec = model.elems[0].crosec as CroSec_Beam;
+            CroSec_Beam crosec = model.elems[0].crosec as CroSec_Beam;
             double mx_targ = -theta.X * crosec.material.G12() * crosec.Ipp / length;
             double my_targ = -theta.Y * crosec.material.E() * crosec.Iyy / length;
             double mz_targ = -theta.Z * crosec.material.E() * crosec.Izz / length;

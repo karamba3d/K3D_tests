@@ -4,14 +4,13 @@ namespace KarambaCommon.Tests.Loads
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
-    using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
     using Karamba.Geometry;
     using Karamba.Loads;
     using Karamba.Loads.Beam;
+    using KarambaCommon.Tests.Helpers;
+    using KarambaCommon;
     using NSubstitute;
     using NUnit.Framework;
-    using NUnitLite.Tests.Helpers;
 
     [TestFixture]
     public class DistributedLoad_Tests
@@ -20,7 +19,7 @@ namespace KarambaCommon.Tests.Loads
         public void Constructor_ValuesAndPositions_WillBeSorted()
         {
             // Arrange
-            var args = new DistLoadArgs
+            DistLoadArgs args = new DistLoadArgs
             {
                 BeamIds = new List<string> { "anyBeamId1", "anyBeamId2" },
                 LcName = "anyLcName",
@@ -30,7 +29,7 @@ namespace KarambaCommon.Tests.Loads
             };
 
             // Act
-            var load = CreateLoadInstance(args);
+            DistributedLoad load = CreateLoadInstance(args);
 
             // Assert
             Assert.That(load.Positions.ToArray(), Is.EqualTo(new[] { 0.0, 0.5, 1.0, 1.0 }));
@@ -41,7 +40,7 @@ namespace KarambaCommon.Tests.Loads
         public void TryComputeValueFromPosition_AValidValue_WillBeLinearlyInterpolated()
         {
             // Arrange
-            var args = new DistLoadArgs
+            DistLoadArgs args = new DistLoadArgs
             {
                 BeamIds = new List<string> { "anyBeamId1", "anyBeamId2" },
                 LcName = "anyLcName",
@@ -51,8 +50,8 @@ namespace KarambaCommon.Tests.Loads
             };
 
             // Act
-            var distributedLoad = CreateLoadInstance(args);
-            var boolRes = distributedLoad.TryGetValue(0.5, out var outValue, out var _);
+            DistributedLoad distributedLoad = CreateLoadInstance(args);
+            bool boolRes = distributedLoad.TryGetValue(0.5, out double outValue, out bool _);
 
             // Assert
             Assert.That(boolRes, Is.True);
@@ -63,7 +62,7 @@ namespace KarambaCommon.Tests.Loads
         public void TryComputeValueFromPosition_NonValidValue_ReturnsFalse()
         {
             // Arrange
-            var args = new DistLoadArgs
+            DistLoadArgs args = new DistLoadArgs
             {
                 BeamIds = new List<string> { "anyBeamId1", "anyBeamId2" },
                 LcName = "anyLcName",
@@ -73,8 +72,8 @@ namespace KarambaCommon.Tests.Loads
             };
 
             // Act
-            var distributedLoad = CreateLoadInstance(args);
-            var boolRes = distributedLoad.TryGetValue(1, out var outValue, out var _);
+            DistributedLoad distributedLoad = CreateLoadInstance(args);
+            bool boolRes = distributedLoad.TryGetValue(1, out double outValue, out bool _);
 
             // Assert
             Assert.That(boolRes, Is.False);
@@ -174,7 +173,7 @@ namespace KarambaCommon.Tests.Loads
 
         private DistributedLoad CreateLoadInstance(DistLoadArgs args)
         {
-            var constructObjects = new object[]
+            object[] constructObjects = new object[]
             {
                 args.BeamIds, new List<Guid>(), args.LcName, args.LoadOrientation, args.Direction, args.Positions, args.Values,
             };
@@ -199,9 +198,9 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void CantileverBeam_TorsionalMoment_TriangleLoad()
         {
-            var k3d = new Toolkit();
-            var m = 1.0;
-            var load = k3d.Load.DistributedMomentLoad(
+            Toolkit k3d = new Toolkit();
+            double m = 1.0;
+            DistributedMoment load = k3d.Load.DistributedMomentLoad(
                 Vector3.XAxis,
                 new List<double> { 0, 1, 0 },
                 new List<double> { 0.25, 0.5, 0.75 },
@@ -209,16 +208,16 @@ namespace KarambaCommon.Tests.Loads
 
             // Act
             const double length = 1;
-            var model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
+            Karamba.Models.Model model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
             model = k3d.Algorithms.AnalyzeThI(
                 model,
                 out _,
                 out _,
                 out _,
-                out var message);
+                out string message);
 
             const double aLoad = 0.25 * length;
-            var mxTarget = m * aLoad;
+            double mxTarget = m * aLoad;
 
             double mx1 = model.febmodel.element(0).interiorState(model.febmodel, 0, length, true).force((int)feb.Node.DOF.x_r);
             double my1 = model.febmodel.element(0).interiorState(model.febmodel, 0, length, true).force((int)feb.Node.DOF.y_r);
@@ -238,9 +237,9 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void CantileverBeam_TorsionalMoment_BlockLoad()
         {
-            var k3d = new Toolkit();
-            var m = 1.0;
-            var load = k3d.Load.DistributedMomentLoad(
+            Toolkit k3d = new Toolkit();
+            double m = 1.0;
+            DistributedMoment load = k3d.Load.DistributedMomentLoad(
                 Vector3.XAxis,
                 new List<double> { 1, 1 },
                 new List<double> { 0.25, 0.75 },
@@ -248,16 +247,16 @@ namespace KarambaCommon.Tests.Loads
 
             // Act
             const double length = 1;
-            var model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
+            Karamba.Models.Model model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
             model = k3d.Algorithms.AnalyzeThI(
                 model,
                 out _,
                 out _,
                 out _,
-                out var message);
+                out string message);
 
             const double aLoad = 0.50 * length;
-            var mxTarget = m * aLoad;
+            double mxTarget = m * aLoad;
 
             double mx1 = model.febmodel.element(0).interiorState(model.febmodel, 0, length, true).force((int)feb.Node.DOF.x_r);
             double my1 = model.febmodel.element(0).interiorState(model.febmodel, 0, length, true).force((int)feb.Node.DOF.y_r);
@@ -277,9 +276,9 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void CantileverBeam_TorsionalMoment_TrapezoidLoad()
         {
-            var k3d = new Toolkit();
-            var m = 2.0;
-            var load = k3d.Load.DistributedMomentLoad(
+            Toolkit k3d = new Toolkit();
+            double m = 2.0;
+            DistributedMoment load = k3d.Load.DistributedMomentLoad(
                 Vector3.XAxis,
                 new List<double> { 0, m, m, 0 },
                 new List<double> { 0.5, 0.6, 0.9, 1.0 },
@@ -287,16 +286,16 @@ namespace KarambaCommon.Tests.Loads
 
             // Act
             const double length = 1;
-            var model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
+            Karamba.Models.Model model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
             model = k3d.Algorithms.AnalyzeThI(
                 model,
                 out _,
                 out _,
                 out _,
-                out var message);
+                out string message);
 
             const double areaLoad = (0.50 + 0.3) * 0.5 * length;
-            var mxTarget = m * areaLoad;
+            double mxTarget = m * areaLoad;
 
             double mx1 = model.febmodel.element(0).interiorState(model.febmodel, 0, length, true).force((int)feb.Node.DOF.x_r);
             double my1 = model.febmodel.element(0).interiorState(model.febmodel, 0, length, true).force((int)feb.Node.DOF.y_r);
@@ -316,9 +315,9 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void CantileverBeam_BendingMomentMy_ForceBlockLoad()
         {
-            var k3d = new Toolkit();
-            var m = 2.0;
-            var load = k3d.Load.DistributedForceLoad(
+            Toolkit k3d = new Toolkit();
+            double m = 2.0;
+            DistributedForce load = k3d.Load.DistributedForceLoad(
                 Vector3.ZAxis,
                 new List<double> { m, m },
                 new List<double> { 0.5, 1.0 },
@@ -326,16 +325,16 @@ namespace KarambaCommon.Tests.Loads
 
             // Act
             const double length = 1;
-            var model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
+            Karamba.Models.Model model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
             model = k3d.Algorithms.AnalyzeThI(
                 model,
                 out _,
                 out _,
                 out _,
-                out var message);
+                out string message);
 
             const double areaLoad = 0.5 * length;
-            var myTarget = -m * areaLoad * length * 0.75;
+            double myTarget = -m * areaLoad * length * 0.75;
 
             double mx1 = model.febmodel.element(0).interiorState(model.febmodel, 0, length, true).force((int)feb.Node.DOF.x_r);
             double my1 = model.febmodel.element(0).interiorState(model.febmodel, 0, length, true).force((int)feb.Node.DOF.y_r);
@@ -355,9 +354,9 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void CantileverBeam_BendingMomentMy_MomentBlockLoad()
         {
-            var k3d = new Toolkit();
-            var m = 2.0;
-            var load = k3d.Load.DistributedMomentLoad(
+            Toolkit k3d = new Toolkit();
+            double m = 2.0;
+            DistributedMoment load = k3d.Load.DistributedMomentLoad(
                 Vector3.YAxis,
                 new List<double> { m, m },
                 new List<double> { 0.0, 1.0 },
@@ -365,16 +364,16 @@ namespace KarambaCommon.Tests.Loads
 
             // Act
             const double length = 1;
-            var model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
+            Karamba.Models.Model model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
             model = k3d.Algorithms.AnalyzeThI(
                 model,
                 out _,
                 out _,
                 out _,
-                out var message);
+                out string message);
 
             const double areaLoad = length;
-            var myTarget = m * areaLoad;
+            double myTarget = m * areaLoad;
 
             double mx0 = model.febmodel.element(0).interiorState(model.febmodel, 0, 0, true).force((int)feb.Node.DOF.x_r);
             double my0 = model.febmodel.element(0).interiorState(model.febmodel, 0, 0, true).force((int)feb.Node.DOF.y_r);
@@ -394,9 +393,9 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void CantileverBeam_BendingMomentMz_MomentBlockLoad()
         {
-            var k3d = new Toolkit();
-            var m = 2.0;
-            var load = k3d.Load.DistributedMomentLoad(
+            Toolkit k3d = new Toolkit();
+            double m = 2.0;
+            DistributedMoment load = k3d.Load.DistributedMomentLoad(
                 Vector3.ZAxis,
                 new List<double> { m, m },
                 new List<double> { 0.0, 1.0 },
@@ -404,16 +403,16 @@ namespace KarambaCommon.Tests.Loads
 
             // Act
             const double length = 1;
-            var model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
+            Karamba.Models.Model model = BeamFactory.CreateCantileverBeam(length, load, k3d.CroSec.CircularHollow());
             model = k3d.Algorithms.AnalyzeThI(
                 model,
                 out _,
                 out _,
                 out _,
-                out var message);
+                out string message);
 
             const double areaLoad = length;
-            var mzTarget = m * areaLoad;
+            double mzTarget = m * areaLoad;
 
             double mx0 = model.febmodel.element(0).interiorState(model.febmodel, 0, 0, true).force((int)feb.Node.DOF.x_r);
             double my0 = model.febmodel.element(0).interiorState(model.febmodel, 0, 0, true).force((int)feb.Node.DOF.y_r);

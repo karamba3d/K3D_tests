@@ -4,10 +4,8 @@ namespace KarambaCommon.Tests.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Drawing;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using Karamba.Algorithms;
     using Karamba.CrossSections;
     using Karamba.Elements;
@@ -17,32 +15,36 @@ namespace KarambaCommon.Tests.Model
     using Karamba.Materials;
     using Karamba.Models;
     using Karamba.Supports;
-    using Karamba.Utilities;
     using NUnit.Framework;
+    using Helper = KarambaCommon.Tests.Helpers.Helper;
+    using UnitSystem = Karamba.Utilities.UnitSystem;
 
     [TestFixture]
     public class FindSupportNodesTests
     {
         [Test]
-
         // [Category("QuickTests")]
         public void FindSupportNode()
         {
-            var nFaces = 1;
-            var length = 10.0;
-            var xIncMesh = length / nFaces;
-            var limit_dist = xIncMesh / 100.0;
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
+            // XXX something other global ...
+
+            int nFaces = 1;
+            double length = 10.0;
+            double xIncMesh = length / nFaces;
+            double limit_dist = xIncMesh / 100.0;
 
             // create the mesh
             var mesh = new Mesh3((nFaces + 1) * 2, nFaces);
-            mesh.AddVertex(new Point3(0, -0.5, 0));
-            mesh.AddVertex(new Point3(0, 0.5, 0));
-            for (var faceInd = 0; faceInd < nFaces; ++faceInd)
+            _ = mesh.AddVertex(new Point3(0, -0.5, 0));
+            _ = mesh.AddVertex(new Point3(0, 0.5, 0));
+            for (int faceInd = 0; faceInd < nFaces; ++faceInd)
             {
-                mesh.AddVertex(new Point3((faceInd + 1) * xIncMesh, -0.5, 0));
-                mesh.AddVertex(new Point3((faceInd + 1) * xIncMesh, 0.5, 0));
-                var nV = mesh.Vertices.Count;
-                mesh.AddFace(nV - 4, nV - 3, nV - 1, nV - 2);
+                _ = mesh.AddVertex(new Point3((faceInd + 1) * xIncMesh, -0.5, 0));
+                _ = mesh.AddVertex(new Point3((faceInd + 1) * xIncMesh, 0.5, 0));
+                int nV = mesh.Vertices.Count;
+                _ = mesh.AddFace(nV - 4, nV - 3, nV - 1, nV - 2);
             }
 
             // create a shell
@@ -73,7 +75,7 @@ namespace KarambaCommon.Tests.Model
 
             // assemble the model
             var modelBuilder = new ModelBuilder(limit_dist);
-            var model = modelBuilder.build(
+            Model model = modelBuilder.build(
                 new List<Point3>(),
                 new List<FemMaterial>(),
                 new List<CroSec>(),
@@ -82,17 +84,20 @@ namespace KarambaCommon.Tests.Model
                 outBuilderShells,
                 new List<ElemSet>(),
                 new List<Joint>(),
-                new MessageLogger());
+                out var _);    // logger
 
-            AnalyzeThI.solve(model, out var outMaxDisp, out _, out _, out _, out _);
+            AnalyzeThI.solve(model, out IReadOnlyList<double> outMaxDisp, out _, out _, out _, out _);
 
-            Assert.That(outMaxDisp[0], Is.EqualTo(53.62193486094136).Within(1E-5));
+            int nodeInd = model.NodeInd(new Point3(0, -0.5, 0), 1e-8);
+            Support support3 = model.Support(nodeInd);
+            Support support4 = model.Support(nodeInd + 3);
 
-            var nodeInd = model.NodeInd(new Point3(0, -0.5, 0), 1e-8);
-            var support3 = model.Support(nodeInd);
-            Assert.True(support3 != null);
-            var support4 = model.Support(nodeInd + 3);
-            Assert.True(support4 == null);
+            Assert.Multiple(() => {
+                Assert.That(outMaxDisp[0], Is.EqualTo(53.62193486094136).Within(1E-5));
+                Assert.That(support3, Is.Not.Null);
+                Assert.That(support4, Is.Null);
+                // Debug.WriteLine("test");
+            });
         }
     }
 }

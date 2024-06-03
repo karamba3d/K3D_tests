@@ -11,7 +11,10 @@ namespace KarambaCommon.Tests.CrossSections
     using Karamba.Loads;
     using Karamba.Supports;
     using Karamba.Utilities;
+    using KarambaCommon;
     using NUnit.Framework;
+    using static Karamba.Utilities.IniConfigData;
+    using Helper = KarambaCommon.Tests.Helpers.Helper;
 
     [TestFixture]
     public class CroSecValues_tests
@@ -19,35 +22,41 @@ namespace KarambaCommon.Tests.CrossSections
         [Test]
         public void BoxValues()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
             var k3d = new Toolkit();
-            var cs = k3d.CroSec.Box(390, 60, 60, 23.6, 0.1, 2.7, 0, -1);
-            var a = cs._height * cs.uf_width -
+            CroSec_Box cs = k3d.CroSec.Box(390, 60, 60, 23.6, 0.1, 2.7, 0, -1);
+            double a = cs._height * cs.uf_width -
                     (cs._height - cs.uf_thick - cs.lf_thick) * (cs.uf_width - 2 * cs.w_thick);
-            var ufA = cs.uf_thick * cs.uf_width;
-            var lfA = cs.lf_thick * cs.lf_width;
-            var wh = cs._height - cs.uf_thick - cs.lf_thick;
-            var wA = wh * cs.w_thick * 2;
-            var sy = ufA * cs.uf_thick * 0.5 + lfA * (cs._height - 0.5 * cs.lf_thick) + wA * (cs.uf_thick + wh * 0.5);
-            var zs = sy / a;
+            double ufA = cs.uf_thick * cs.uf_width;
+            double lfA = cs.lf_thick * cs.lf_width;
+            double wh = cs._height - cs.uf_thick - cs.lf_thick;
+            double wA = wh * cs.w_thick * 2;
+            double sy = ufA * cs.uf_thick * 0.5 + lfA * (cs._height - 0.5 * cs.lf_thick) + wA * (cs.uf_thick + wh * 0.5);
+            double zs = sy / a;
+            Assert.Multiple(() => {
             Assert.That(cs.A, Is.EqualTo(a).Within(1E-10));
             Assert.That(cs.zs, Is.EqualTo(zs).Within(1E-10));
+            });
         }
 
         [Test]
         public void ChannelValues()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
             var k3d = new Toolkit();
-            var cs = k3d.CroSec.Box(15, 20, 20, 0, 1.5, 2.0, 0, -1);
-            var a = cs._height * cs.uf_width -
+            CroSec_Box cs = k3d.CroSec.Box(15, 20, 20, 0, 1.5, 2.0, 0, -1);
+            double a = cs._height * cs.uf_width -
                     (cs._height - cs.uf_thick - cs.lf_thick) * (cs.uf_width - 2 * cs.w_thick);
-            var ufA = cs.uf_thick * cs.uf_width;
-            var lfA = cs.lf_thick * cs.lf_width;
-            var wh = cs._height - cs.uf_thick - cs.lf_thick;
-            var wA = wh * cs.w_thick * 2;
-            var sy = ufA * cs.uf_thick * 0.5 + lfA * (cs._height - 0.5 * cs.lf_thick) + wA * (cs.uf_thick + wh * 0.5);
-            var zs = sy / a;
-            var iyy = 1.9105714285714284e-5;
-            var ipp = 94.5 * 1E-8;
+            double ufA = cs.uf_thick * cs.uf_width;
+            double lfA = cs.lf_thick * cs.lf_width;
+            double wh = cs._height - cs.uf_thick - cs.lf_thick;
+            double wA = wh * cs.w_thick * 2;
+            double sy = ufA * cs.uf_thick * 0.5 + lfA * (cs._height - 0.5 * cs.lf_thick) + wA * (cs.uf_thick + wh * 0.5);
+            double zs = sy / a;
+            double iyy = 1.9105714285714284e-5;
+            double ipp = 94.5 * 1E-8;
 
             Assert.That(cs.A, Is.EqualTo(a).Within(1E-10));
             Assert.That(cs.zs, Is.EqualTo(zs).Within(1E-10));
@@ -70,7 +79,7 @@ namespace KarambaCommon.Tests.CrossSections
         public void CroSec_ExteriorPerimeter()
         {
             var ucf = UnitsConversionFactory.Conv();
-            var cm = ucf.cm();
+            UnitConversion cm = ucf.cm();
 
             // # CroSec_I
             var cs_i = new CroSec_I(
@@ -88,7 +97,7 @@ namespace KarambaCommon.Tests.CrossSections
                 FilletR,
                 0,
                 0);
-            var cs_i_expected = cm.toBase(2 * _height + 2 * _uf_width + 2 * _lf_width + 4 * _fillet_l - 8 * FilletR);
+            double cs_i_expected = cm.toBase(2 * _height + 2 * _uf_width + 2 * _lf_width + 4 * _fillet_l - 8 * FilletR);
 
             // # CroSec_Box
             var cs_box = new CroSec_Box(
@@ -105,11 +114,11 @@ namespace KarambaCommon.Tests.CrossSections
                 _w_thick,
                 FilletR,
                 0);
-            var cs_box_expected = cm.toBase(2 * _height + _uf_width + _lf_width + 4 * _fillet_l - 8 * FilletR);
+            double cs_box_expected = cm.toBase(2 * _height + _uf_width + _lf_width + 4 * _fillet_l - 8 * FilletR);
 
             // # CroSec_Circle
             var cs_circle = new CroSec_Circle("test", "testCirc", null, null, null, _height, _w_thick);
-            var cs_circle_expected = cm.toBase(Math.PI * _height);
+            double cs_circle_expected = cm.toBase(Math.PI * _height);
 
             // # CroSec_T
             var cs_t = new CroSec_T(
@@ -125,7 +134,7 @@ namespace KarambaCommon.Tests.CrossSections
                 FilletR,
                 0,
                 0);
-            var cs_t_expected = cm.toBase(2 * _height + 2 * _uf_width + 2 * _fillet_l - 4 * FilletR);
+            double cs_t_expected = cm.toBase(2 * _height + 2 * _uf_width + 2 * _fillet_l - 4 * FilletR);
 
             // # CroSec_Trapezoid
             var cs_trapezoid = new CroSec_Trapezoid(
@@ -137,8 +146,8 @@ namespace KarambaCommon.Tests.CrossSections
                 _height,
                 _lf_width,
                 _uf_width);
-            var diff = Math.Abs(_uf_width - _lf_width);
-            var cs_trapezoid_expected = cm.toBase(
+            double diff = Math.Abs(_uf_width - _lf_width);
+            double cs_trapezoid_expected = cm.toBase(
                 _uf_width + _lf_width + 2 * Math.Sqrt(Math.Pow(_height, 2) + Math.Pow(diff, 2)));
 
             Assert.That(cs_box.exteriorPerimeter, Is.EqualTo(cs_box_expected).Within(1E-3));
@@ -157,9 +166,9 @@ namespace KarambaCommon.Tests.CrossSections
             var k3d = new Toolkit();
             var logger = new MessageLogger();
             var ucf = UnitsConversionFactory.Conv();
-            var cm = ucf.cm();
+            UnitConversion cm = ucf.cm();
 
-            var l = 10;
+            int l = 10;
             var p0 = new Point3(0, 0, 0);
             var p1 = new Point3(l, 0, 0);
             var line = new Line3(p0, p1);
@@ -246,7 +255,7 @@ namespace KarambaCommon.Tests.CrossSections
 
             var loads = new List<Load> { k3d.Load.PointLoad(points[1], new Vector3(0, 0, -1)), };
 
-            var model = k3d.Model.AssembleModel(
+            Karamba.Models.Model model = k3d.Model.AssembleModel(
                 elems,
                 supports,
                 loads,
@@ -259,12 +268,12 @@ namespace KarambaCommon.Tests.CrossSections
                 points);
 
             // # expected Area
-            var areaI = cm.toBase(2 * _height + 2 * _uf_width + 2 * _lf_width + 4 * _fillet_l - 8 * FilletR) * l;
-            var areaBox = cm.toBase(2 * _height + _uf_width + _lf_width + 4 * _fillet_l - 8 * FilletR) * l;
-            var areaCircle = cm.toBase(Math.PI * _height) * l;
-            var areaT = cm.toBase(2 * _height + 2 * _uf_width + 2 * _fillet_l - 4 * FilletR) * l;
-            var diff = Math.Abs(_uf_width - _lf_width);
-            var areaTrapezoid =
+            double areaI = cm.toBase(2 * _height + 2 * _uf_width + 2 * _lf_width + 4 * _fillet_l - 8 * FilletR) * l;
+            double areaBox = cm.toBase(2 * _height + _uf_width + _lf_width + 4 * _fillet_l - 8 * FilletR) * l;
+            double areaCircle = cm.toBase(Math.PI * _height) * l;
+            double areaT = cm.toBase(2 * _height + 2 * _uf_width + 2 * _fillet_l - 4 * FilletR) * l;
+            double diff = Math.Abs(_uf_width - _lf_width);
+            double areaTrapezoid =
                 cm.toBase(_uf_width + _lf_width + 2 * Math.Sqrt(Math.Pow(_height, 2) + Math.Pow(diff, 2))) * l;
 
             Assert.That(model.elems[0].SurfaceArea(model.nodes), Is.EqualTo(areaI).Within(1E-3));
@@ -282,10 +291,10 @@ namespace KarambaCommon.Tests.CrossSections
         {
             var k3d = new Toolkit();
             var logger = new MessageLogger();
-            var ucf = UnitsConversionFactory.Conv();
+            UnitsConversionFactory ucf = UnitsConversionFactory.Conv();
             ucf.cm();
 
-            var l = 10;
+            int l = 10;
             var p0 = new Point3(0, 0, 0);
             var p1 = new Point3(l, 0, 0);
             var line = new Line3(p0, p1);
@@ -372,7 +381,7 @@ namespace KarambaCommon.Tests.CrossSections
 
             var loads = new List<Load> { k3d.Load.PointLoad(points[1], new Vector3(0, 0, -1)), };
 
-            var model = k3d.Model.AssembleModel(
+            Karamba.Models.Model model = k3d.Model.AssembleModel(
                 elems,
                 supports,
                 loads,
@@ -385,17 +394,19 @@ namespace KarambaCommon.Tests.CrossSections
                 points);
 
             // # expected Area
-            var volumeI = ((CroSec_Beam)model.elems[0].crosec).A * l;
-            var volumeBox = ((CroSec_Beam)model.elems[1].crosec).A * l;
-            var volumeCircle = ((CroSec_Beam)model.elems[2].crosec).A * l;
-            var volumeT = ((CroSec_Beam)model.elems[3].crosec).A * l;
-            var volumeTrapezoid = ((CroSec_Beam)model.elems[4].crosec).A * l;
+            double volumeI = ((CroSec_Beam)model.elems[0].crosec).A * l;
+            double volumeBox = ((CroSec_Beam)model.elems[1].crosec).A * l;
+            double volumeCircle = ((CroSec_Beam)model.elems[2].crosec).A * l;
+            double volumeT = ((CroSec_Beam)model.elems[3].crosec).A * l;
+            double volumeTrapezoid = ((CroSec_Beam)model.elems[4].crosec).A * l;
 
+            Assert.Multiple(() => {
             Assert.That(model.elems[0].Volume(model.nodes), Is.EqualTo(volumeI).Within(1E-3));
             Assert.That(model.elems[1].Volume(model.nodes), Is.EqualTo(volumeBox).Within(1E-3));
             Assert.That(model.elems[2].Volume(model.nodes), Is.EqualTo(volumeCircle).Within(1E-3));
             Assert.That(model.elems[3].Volume(model.nodes), Is.EqualTo(volumeT).Within(1E-3));
             Assert.That(model.elems[4].Volume(model.nodes), Is.EqualTo(volumeTrapezoid).Within(1E-3));
+            });
         }
 
         // */

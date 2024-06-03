@@ -1,0 +1,6 @@
+{
+    "dotnet.defaultSolution": "KarambaCommon_tests.sln",
+    "nunitTestRunner.projectsPatterns": [
+        "**/bin/Debug/net7.0-windows/win-x64/*tests.dll"
+    ]
+}

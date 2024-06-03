@@ -2,22 +2,17 @@
 
 namespace KarambaCommon.Tests.Loads
 {
-    using System;
     using System.Collections.Generic;
-    using System.Drawing;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Karamba.Algorithms;
     using Karamba.CrossSections;
     using Karamba.Elements;
     using Karamba.Geometry;
     using Karamba.Loads;
-    using Karamba.Materials;
     using Karamba.Models;
     using Karamba.Supports;
     using Karamba.Utilities;
+    using KarambaCommon;
     using NUnit.Framework;
+    using Helper = KarambaCommon.Tests.Helpers.Helper;
 
     [TestFixture]
     public class MeshLoad_tests
@@ -25,6 +20,8 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void MeshLoadProfiling()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
             var k3d = new Toolkit();
             var logger = new MessageLogger();
 
@@ -45,7 +42,7 @@ namespace KarambaCommon.Tests.Loads
                 nodeI = nodeK;
             }
 
-            var builderElements = k3d.Part.LineToBeam(
+            List<BuilderBeam> builderElements = k3d.Part.LineToBeam(
                 lines,
                 new List<string>(),
                 new List<CroSec>(),
@@ -53,51 +50,53 @@ namespace KarambaCommon.Tests.Loads
                 out List<Point3> _);
 
             // create a MeshLoad
-            var mesh = new Mesh3((nFaces + 1) * 2, nFaces);
+            Mesh3 mesh = new Mesh3((nFaces + 1) * 2, nFaces);
             mesh.AddVertex(new Point3(0, -0.5, 0));
             mesh.AddVertex(new Point3(0, 0.5, 0));
-            for (var faceInd = 0; faceInd < nFaces; ++faceInd)
+            for (int faceInd = 0; faceInd < nFaces; ++faceInd)
             {
                 mesh.AddVertex(new Point3((faceInd + 1) * xIncMesh, -0.5, 0));
                 mesh.AddVertex(new Point3((faceInd + 1) * xIncMesh, 0.5, 0));
-                var nV = mesh.Vertices.Count;
+                int nV = mesh.Vertices.Count;
                 mesh.AddFace(nV - 4, nV - 3, nV - 1, nV - 2);
             }
 
-            var ucf = UnitsConversionFactory.Conv();
-            var m = UnitsConversionFactory.Conv().base_length;
-            var baseMesh = m.toBaseMesh(mesh);
+            UnitsConversionFactory ucf = UnitsConversionFactory.Conv();
+            UnitConversion m = UnitsConversionFactory.Conv().base_length;
+            Mesh3 baseMesh = m.toBaseMesh(mesh);
 
             // create a mesh load
-            var load = k3d.Load.MeshLoad(new List<Vector3>() { new Vector3(0, 0, -1) }, baseMesh);
+            MeshLoad load = k3d.Load.MeshLoad(new List<Vector3>() { new Vector3(0, 0, -1) }, baseMesh);
 
             // create a support
-            var support = k3d.Support.Support(new Point3(0, 0, 0), k3d.Support.SupportFixedConditions);
+            Support support = k3d.Support.Support(new Point3(0, 0, 0), k3d.Support.SupportFixedConditions);
 
             // assemble the model
-            var model = k3d.Model.AssembleModel(
+            Model model = k3d.Model.AssembleModel(
                 builderElements,
                 new List<Support>() { support },
                 new List<Load>() { load },
-                out var _,
+                out string _,
                 out _,
-                out var _,
-                out var _,
-                out var _);
+                out Point3 _,
+                out string _,
+                out bool _);
 
             // calculate the model
             _ = k3d.Algorithms.AnalyzeThI(
                 model,
-                out var outMaxDisp,
-                out var _,
-                out var _,
-                out var _);
+                out IReadOnlyList<double> outMaxDisp,
+                out IReadOnlyList<double> _,
+                out IReadOnlyList<double> _,
+                out string _);
             Assert.That(outMaxDisp[0], Is.EqualTo(2.8232103119228276).Within(1E-5));
         }
 
         [Test]
         public void MeshLoad_on_QuadMesh()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
             var k3d = new Toolkit();
             var logger = new MessageLogger();
 
@@ -108,13 +107,13 @@ namespace KarambaCommon.Tests.Loads
             var mesh = new Mesh3(new List<Point3>() { p0, p1, p2, p3 }, new List<Face3>() { new Face3(0, 1, 2, 3), });
 
             // create a mesh load
-            var load = k3d.Load.MeshLoad(new List<Vector3>() { new Vector3(0, 0, 1) }, mesh);
+            MeshLoad load = k3d.Load.MeshLoad(new List<Vector3>() { new Vector3(0, 0, 1) }, mesh);
 
             // create a shell
-            var shells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, null, null, logger, out _);
+            List<BuilderShell> shells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, null, null, logger, out _);
 
             // assemble the model
-            var model = k3d.Model.AssembleModel(
+            Model model = k3d.Model.AssembleModel(
                 shells,
                 null,
                 new List<Load> { load },
@@ -130,6 +129,8 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void MeshLoad_on_Named_QuadMesh()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
             var k3d = new Toolkit();
             var logger = new MessageLogger();
 
@@ -174,6 +175,8 @@ namespace KarambaCommon.Tests.Loads
         [Test]
         public void UnitMeshLoads_Detection()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
             var k3d = new Toolkit();
             var logger = new MessageLogger();
 

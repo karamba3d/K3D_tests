@@ -1,14 +1,16 @@
-﻿namespace KarambaCommon.Tests.CrossSections
+﻿#if ALL_TESTS
+namespace KarambaCommon.Tests.CrossSections
 {
     using System.Collections.Generic;
     using Karamba.Geometry;
-    using KarambaCommon.Utilities;
+    using Karamba.Utilities;
     using NUnit.Framework;
+
+#pragma warning disable CS1591 // don't enforce documentation in test files.
 
     [TestFixture]
     public class CroSecProperties_tests
     {
-#if ALL_TESTS
         [Test]
         public void RectangleValues()
         {
@@ -16,7 +18,7 @@
             double b = 0.5;
             double h = 1.0;
 
-            var pl = new PolyLine3(new List<Point3>
+            PolyLine3 pl = new PolyLine3(new List<Point3>
             {
                 new Point3(0, 0, h),
                 new Point3(0, 0, 0),
@@ -24,7 +26,7 @@
                 new Point3(0, b, h),
             });
 
-            var props = CroSecProperties.solve(new List<PolyLine3> { pl });
+            CrossSectionProperties props = CroSecProperties.solve(new List<PolyLine3> { pl });
             double area_targ = b * h;
             Assert.That(area_targ, Is.EqualTo(props.A).Within(1E-10));
             double area_iy = b * h * h * h / 12.0;
@@ -57,7 +59,7 @@
             double h = 1.0;
             double t = 0.1;
 
-            var pl1 = new PolyLine3(new List<Point3>
+            PolyLine3 pl1 = new PolyLine3(new List<Point3>
             {
                 new Point3(0, 0, h),
                 new Point3(0, 0, 0),
@@ -65,7 +67,7 @@
                 new Point3(0, b, h),
             });
 
-            var pl2 = new PolyLine3(new List<Point3>
+            PolyLine3 pl2 = new PolyLine3(new List<Point3>
             {
                 new Point3(0, b - t, h - t),
                 new Point3(0, b - t, 0 + t),
@@ -76,10 +78,10 @@
             double bi = 0.5 - 2 * t;
             double hi = 1.0 - 2 * t;
 
-            var props = CroSecProperties.solve(new List<PolyLine3> { pl1, pl2 });
+            CrossSectionProperties props = CroSecProperties.solve(new List<PolyLine3> { pl1, pl2 });
             double area_targ = b * h - bi * hi;
             Assert.That(area_targ, Is.EqualTo(props.A).Within(1E-10));
         }
-#endif
     }
 }
+#endif

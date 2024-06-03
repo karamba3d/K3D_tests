@@ -14,7 +14,7 @@ namespace KarambaCommon.Tests.CrossSections
         [Test]
         public void BinarySerialization()
         {
-            var crosecs = new List<CroSec>
+            List<CroSec> crosecs = new List<CroSec>
             {
                 new CroSec_Circle("family", "name", "country", null, null, 10.0, 2.0),
             };
@@ -25,37 +25,37 @@ namespace KarambaCommon.Tests.CrossSections
                 formatter.Serialize(fs, crosecs);
             }
 
-            var table = new CroSecTable();
+            CroSecTable table = new CroSecTable();
             table.read(@"crosecs.dat");
 
-            var h0 = crosecs[0].getHeight();
-            var h1 = table.crosecs[0].getHeight();
+            double h0 = crosecs[0].getHeight();
+            double h1 = table.crosecs[0].getHeight();
             Assert.That(h1, Is.EqualTo(h0).Within(1E-5));
         }
 
         [Test]
         public void BinaryReadWrite()
         {
-            var crosecs = new List<CroSec>
+            List<CroSec> crosecs = new List<CroSec>
             {
                 new CroSec_Circle("family", "name", "country", null, null, 10.0, 2.0),
             };
 
             using (FileStream fs = File.Create(@"crosecs.bin"))
             {
-                var writer = new BinaryWriter(fs);
+                BinaryWriter writer = new BinaryWriter(fs);
                 CroSecReaderWriter.write(crosecs, writer);
             }
 
-            var new_crosecs = new List<CroSec>();
+            List<CroSec> new_crosecs = new List<CroSec>();
             using (FileStream fs = File.OpenRead(@"crosecs.bin"))
             {
-                var reader = new BinaryReader(fs);
+                BinaryReader reader = new BinaryReader(fs);
                 new_crosecs = CroSecReaderWriter.read(reader);
             }
 
-            var h0 = crosecs[0].getHeight();
-            var h1 = new_crosecs[0].getHeight();
+            double h0 = crosecs[0].getHeight();
+            double h1 = new_crosecs[0].getHeight();
             Assert.That(h1, Is.EqualTo(h0).Within(1E-5));
         }
     }
