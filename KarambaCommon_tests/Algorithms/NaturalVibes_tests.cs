@@ -4,9 +4,6 @@ namespace KarambaCommon.Tests.Algorithms
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
-    using System.IO;
-    using System.Reflection;
     using Karamba.Algorithms;
     using Karamba.CrossSections;
     using Karamba.Elements;
@@ -15,7 +12,10 @@ namespace KarambaCommon.Tests.Algorithms
     using Karamba.Materials;
     using Karamba.Supports;
     using Karamba.Utilities;
+    using KarambaCommon;
     using NUnit.Framework;
+    using static Karamba.Utilities.IniConfigData;
+    using Helper = KarambaCommon.Tests.Helpers.Helper;
 
     [TestFixture]
     public class NaturalVibes_tests
@@ -23,14 +23,16 @@ namespace KarambaCommon.Tests.Algorithms
         [Test]
         public void Beam_in_mm()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
             // set the new basic length unit
-            var ini_reader = INIReader.Instance();
 
             // switch here between mm and m
-            ini_reader.Values["UnitLength"] = "mm";
+            IniConfig.ReSet();
+            IniConfig.UnitSystem = UnitSystem.SI;
+            IniConfig.SetValue("UnitLength", "mm");
             double length = 4000.0; // [mm]
             /*
-            ini_reader.Values["UnitLength"] = "m";
+            ini.SetValue("UnitLength", "m");
             double length = 4.0; // [m]
             */
 
@@ -46,15 +48,13 @@ namespace KarambaCommon.Tests.Algorithms
             var p1 = new Point3(length, 0, 0);
             var axis = new Line3(p0, p1);
 
-            var resourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
-
             // get a material from the material table in the folder 'Resources'
-            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
+            var materialPath = PathUtil.MaterialPropertiesFile();
             var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
             var material = inMaterials.Find(x => x.name == "Steel");
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.bin");
+            var crosecPath = PathUtil.CrossSectionValuesFile();
             CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
             var crosec_family = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
             var crosec_initial = crosec_family.Find(x => x.name == "FRQ45/5");
@@ -115,19 +115,24 @@ namespace KarambaCommon.Tests.Algorithms
             Assert.That(nat_frequencies[0], Is.EqualTo(356.44751072373236).Within(1e-4));
 
             // reset the new basic length unit
-            ini_reader.Values["UnitLength"] = "m";
+            IniConfig.SetValue("UnitLength", "m");
 
             // clear all singletons
             UnitsConversionFactory.ClearSingleton();
             Material_Default.ClearSingleton();
             CroSec_Default.ClearSingleton();
             UnitsConversionFactory.ClearSingleton();
-            INIReader.ClearSingleton();
+            IniConfig.ReSet();
         }
 
         [Test]
         public void Beam()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
+            IniConfig.ReSet(); // the stored on, but ...
+            IniConfig.SetValue("UnitSystem", UnitSystem.SI);
+            IniConfig.DefaultUnits();
             var k3d = new Toolkit();
             var logger = new MessageLogger();
             double length = 4.0;
@@ -135,29 +140,27 @@ namespace KarambaCommon.Tests.Algorithms
             var p1 = new Point3(length, 0, 0);
             var axis = new Line3(p0, p1);
 
-            var resourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
-
             // get a material from the material table in the folder 'Resources'
-            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
-            var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
-            var material = inMaterials.Find(x => x.name == "Steel");
+            string materialPath = PathUtil.MaterialPropertiesFile();
+            List<FemMaterial> inMaterials = k3d.Material.ReadMaterialTable(materialPath);
+            FemMaterial material = inMaterials.Find(x => x.name == "Steel");
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.bin");
-            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
-            var crosec_family = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
-            var crosec_initial = crosec_family.Find(x => x.name == "FRQ45/5");
+            string crosecPath = PathUtil.CrossSectionValuesFile();
+            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out string info);
+            List<CroSec> crosec_family = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
+            CroSec crosec_initial = crosec_family.Find(x => x.name == "FRQ45/5");
 
             // attach the material to the cross section
             crosec_initial.setMaterial(material);
 
             // create the column
-            var beams = k3d.Part.LineToBeam(
+            List<BuilderBeam> beams = k3d.Part.LineToBeam(
                 new List<Line3> { axis },
                 new List<string>() { "B1" },
                 new List<CroSec>() { crosec_initial },
                 logger,
-                out var out_points);
+                out List<Point3> out_points);
 
             // create supports
             var supports = new List<Support>
@@ -175,10 +178,10 @@ namespace KarambaCommon.Tests.Algorithms
                 supports,
                 loads,
                 out info,
-                out var mass,
-                out var cog,
-                out var message,
-                out var warning);
+                out double mass,
+                out Point3 cog,
+                out string message,
+                out bool warning);
 
             // calculate the natural vibrations
             int from_shape_ind = 1;
@@ -207,6 +210,11 @@ namespace KarambaCommon.Tests.Algorithms
         [Test]
         public void Shell()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
+            IniConfig.UnitSystem = UnitSystem.SI;
+            IniConfig.DefaultUnits();
+
             var k3d = new Toolkit();
             var logger = new MessageLogger();
             double length = 1.0;
@@ -220,8 +228,8 @@ namespace KarambaCommon.Tests.Algorithms
             mesh.AddFace(new Face3(0, 1, 3));
             mesh.AddFace(new Face3(1, 2, 3));
 
-            var crosec = k3d.CroSec.ShellConst(25, 0);
-            var shells = k3d.Part.MeshToShell(
+            CroSec_Shell crosec = k3d.CroSec.ShellConst(25, 0);
+            List<BuilderShell> shells = k3d.Part.MeshToShell(
                 new List<Mesh3> { mesh },
                 null,
                 new List<CroSec> { crosec },
@@ -273,6 +281,9 @@ namespace KarambaCommon.Tests.Algorithms
         [Test]
         public void BeamWithTwoPointMassesAtOneNode()
         {
+            IniConfig.UnitSystem = UnitSystem.SI;
+            IniConfig.DefaultUnits();
+
             var k3d = new Toolkit();
             var logger = new MessageLogger();
             double length = 4.0;
@@ -281,7 +292,7 @@ namespace KarambaCommon.Tests.Algorithms
             var axis = new Line3(p0, p1);
 
             double kNCm2ToKNM2 = 10000;
-            var material = k3d.Material.IsotropicMaterial(
+            FemMaterial material = k3d.Material.IsotropicMaterial(
                 "MaterialFamily",
                 "MaterialName",
                 21000 * kNCm2ToKNM2,
@@ -293,15 +304,15 @@ namespace KarambaCommon.Tests.Algorithms
                 FemMaterial.FlowHypothesis.mises,
                 0);
 
-            var crosec = k3d.CroSec.CircularHollow(10, 5, material, "CroSecFamily", "CroSecName", string.Empty);
+            CroSec_Circle crosec = k3d.CroSec.CircularHollow(10, 5, material, "CroSecFamily", "CroSecName", string.Empty);
 
             // create the column
-            var beams = k3d.Part.LineToBeam(
+            List<BuilderBeam> beams = k3d.Part.LineToBeam(
                 new List<Line3> { axis },
                 new List<string>() { "B1" },
                 new List<CroSec>() { crosec },
                 logger,
-                out var out_points);
+                out List<Point3> out_points);
 
             // create supports
             var supports = new List<Support>
@@ -322,11 +333,11 @@ namespace KarambaCommon.Tests.Algorithms
                 beams,
                 supports,
                 loads,
-                out var info,
-                out var mass,
-                out var cog,
-                out var message,
-                out var warning);
+                out string info,
+                out double mass,
+                out Point3 cog,
+                out string message,
+                out bool warning);
 
             // calculate the natural vibrations
             int from_shape_ind = 1;
@@ -441,12 +452,12 @@ namespace KarambaCommon.Tests.Algorithms
             CroSec_Default.ClearSingleton();
             UnitsConversionFactory.ClearSingleton();
 
-            var ini_reader = INIReader.Instance();
-            ini_reader.Values["UnitsSystem"] = "imperial";
-            ini_reader.Values["UnitLength"] = "ft";
-            ini_reader.Values["UnitForce"] = "kipf";
-            ini_reader.Values["UnitMass"] = "kipm";
-            ini_reader.Values["gravity"] = "9.80665";
+            IniConfig.ReSet();
+            IniConfig.SetValue("UnitsSystem", UnitSystem.imperial);
+            IniConfig.SetValue("UnitLength", "ft");
+            IniConfig.SetValue("UnitForce", "kipf");
+            // IniConfig.Gravity = 9.80665;
+            IniConfig.DefaultGravity();
 
             var k3d = new Toolkit();
             var logger = new MessageLogger();
@@ -521,14 +532,14 @@ namespace KarambaCommon.Tests.Algorithms
             Assert.That(fTar, Is.EqualTo(fRes).Within(1e-4));
 
             // reset the new basic length unit
-            ini_reader.Values["UnitLength"] = "m";
+            IniConfig.SetValue("UnitLength", "m");
 
             // clear all singletons
             UnitsConversionFactory.ClearSingleton();
             Material_Default.ClearSingleton();
             CroSec_Default.ClearSingleton();
             UnitsConversionFactory.ClearSingleton();
-            INIReader.ClearSingleton();
+            IniConfig.ReSet();
         }
 
         [Test]
@@ -540,12 +551,12 @@ namespace KarambaCommon.Tests.Algorithms
             CroSec_Default.ClearSingleton();
             UnitsConversionFactory.ClearSingleton();
 
-            var ini_reader = INIReader.Instance();
-            ini_reader.Values["UnitsSystem"] = "imperial";
-            ini_reader.Values["UnitLength"] = "ft";
-            ini_reader.Values["UnitForce"] = "kipf";
-            ini_reader.Values["UnitMass"] = "kipm";
-            ini_reader.Values["gravity"] = "9.80665";
+            IniConfig.ReSet();
+            IniConfig.SetValue("UnitsSystem", UnitSystem.imperial);
+            IniConfig.SetValue("UnitLength", "ft");
+            IniConfig.SetValue("UnitForce", "kipf");
+            // IniConfig.Gravity = 9.80665;
+            IniConfig.DefaultGravity();
 
             var k3d = new Toolkit();
             var logger = new MessageLogger();
@@ -642,14 +653,14 @@ namespace KarambaCommon.Tests.Algorithms
             Assert.That(fTar, Is.EqualTo(fRes).Within(1e-4));
 
             // reset the new basic length unit
-            ini_reader.Values["UnitLength"] = "m";
+            IniConfig.SetValue("UnitLength", "m");
 
             // clear all singletons
             UnitsConversionFactory.ClearSingleton();
             Material_Default.ClearSingleton();
             CroSec_Default.ClearSingleton();
             UnitsConversionFactory.ClearSingleton();
-            INIReader.ClearSingleton();
+            IniConfig.ReSet();
         }
     }
 }

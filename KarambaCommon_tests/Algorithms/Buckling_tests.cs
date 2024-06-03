@@ -3,15 +3,17 @@
 namespace KarambaCommon.Tests.Algorithms
 {
     using System.Collections.Generic;
-    using System.IO;
-    using System.Reflection;
     using Karamba.CrossSections;
     using Karamba.Elements;
     using Karamba.Geometry;
     using Karamba.Loads;
     using Karamba.Supports;
     using Karamba.Utilities;
+    using KarambaCommon;
     using NUnit.Framework;
+    using static Karamba.Utilities.IniConfigData;
+    using Helper = KarambaCommon.Tests.Helpers.Helper;
+    using PathUtil = Karamba.Utilities.PathUtil;
 
     [TestFixture]
     public class Buckling_tests
@@ -19,6 +21,8 @@ namespace KarambaCommon.Tests.Algorithms
         [Test]
         public void BucklingLength()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
             var k3d = new Toolkit();
             var logger = new MessageLogger();
             double length = 4.0;
@@ -75,8 +79,12 @@ namespace KarambaCommon.Tests.Algorithms
         }
 
         [Test]
+        [NonParallelizable] // don't help
+        [System.Obsolete]
         public void Column()
         {
+            Helper.InitIniConfigTest(UnitSystem.SI, false);
+
             var k3d = new Toolkit();
             var logger = new MessageLogger();
             double length = 4.0;
@@ -84,29 +92,27 @@ namespace KarambaCommon.Tests.Algorithms
             var p1 = new Point3(0, 0, length);
             var axis = new Line3(p0, p1);
 
-            var resourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
-
             // get a material from the material table in the folder 'Resources'
-            var materialPath = Path.Combine(resourcePath, "MaterialProperties.csv");
-            var inMaterials = k3d.Material.ReadMaterialTable(materialPath);
-            var material = inMaterials.Find(x => x.name == "Steel");
+            string materialPath = PathUtil.MaterialPropertiesFile();
+            List<Karamba.Materials.FemMaterial> inMaterials = k3d.Material.ReadMaterialTable(materialPath);
+            Karamba.Materials.FemMaterial material = inMaterials.Find(x => x.name == "Steel");
 
             // get a cross section from the cross section table in the folder 'Resources'
-            var crosecPath = Path.Combine(resourcePath, "CrossSectionValues.bin");
-            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out var info);
-            var crosec_family = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
-            var crosec_initial = crosec_family.Find(x => x.name == "FRQ45/5");
+            string crosecPath = PathUtil.CrossSectionValuesFile();
+            CroSecTable inCroSecs = k3d.CroSec.ReadCrossSectionTable(crosecPath, out string info);
+            List<CroSec> crosec_family = inCroSecs.crosecs.FindAll(x => x.family == "FRQ");
+            CroSec crosec_initial = crosec_family.Find(x => x.name == "FRQ45/5");
 
             // attach the material to the cross section
             crosec_initial.setMaterial(material);
 
             // create the column
-            var beams = k3d.Part.LineToBeam(
+            List<BuilderBeam> beams = k3d.Part.LineToBeam(
                 new List<Line3> { axis },
                 new List<string>() { "B1" },
                 new List<CroSec>() { crosec_initial },
                 logger,
-                out var out_points);
+                out List<Point3> out_points);
 
             // create supports
             var supports = new List<Support>
@@ -119,46 +125,46 @@ namespace KarambaCommon.Tests.Algorithms
             var loads = new List<Load> { k3d.Load.PointLoad(p1, new Vector3(0, 0, -100)), };
 
             // create the model
-            var model = k3d.Model.AssembleModel(
+            Karamba.Models.Model model = k3d.Model.AssembleModel(
                 beams,
                 supports,
                 loads,
                 out info,
-                out var mass,
-                out var cog,
-                out var message,
-                out var warning);
+                out double mass,
+                out Point3 cog,
+                out string message,
+                out bool warning);
 
             // calculate Th.I response
             model = k3d.Algorithms.AnalyzeThI(
                 model,
-                out var out_max_disp,
-                out var out_g,
-                out var out_comp,
+                out IReadOnlyList<double> out_max_disp,
+                out IReadOnlyList<double> out_g,
+                out IReadOnlyList<double> out_comp,
                 out message);
 
             // optimize the cross section
             model = k3d.Algorithms.OptiCroSec(
                 model,
                 crosec_family,
-                out var maxDisplacements,
-                out var compliances,
+                out IReadOnlyList<double> maxDisplacements,
+                out IReadOnlyList<double> compliances,
                 out message);
 
             // disassemble the model
             k3d.Model.Disassemble(
                 model,
                 logger,
-                out var points,
-                out var lines,
-                out var meshes,
+                out List<Point3> points,
+                out List<Line3> lines,
+                out List<IMesh> meshes,
                 out beams,
-                out var shells,
+                out List<BuilderShell> shells,
                 out supports,
                 out loads,
-                out var materials,
-                out var crosecs,
-                out var joints);
+                out List<Karamba.Materials.FemMaterial> materials,
+                out List<CroSec> crosecs,
+                out List<Karamba.Joints.Joint> joints);
 
             // check the buckling length,; a negative value means that the length was autogenerated
             Assert.That(-length, Is.EqualTo(beams[0].BucklingLength(BuilderElementStraightLine.BucklingDir.bklY)).Within(1E-10));

@@ -6,16 +6,20 @@ namespace KarambaCommon.Tests.Loads
     using Karamba.Geometry;
     using Karamba.Loads;
     using Karamba.Loads.Beam;
+    using Karamba.Models;
+    using KarambaCommon.Tests.Helpers;
+    using KarambaCommon.Tests.Loads;
+    using KarambaCommon;
     using NUnit.Framework;
-    using NUnitLite.Tests.Helpers;
 
     [TestFixture(LoadTypes.Force)]
     [TestFixture(LoadTypes.Moment)]
-    public class ConstantLoad_Tests<T>
+    public class ConstantLoad_Tests_T // was: ConstantLoad_Tests<T>
+    // why <T>, T not used anyway?
     {
         private readonly LoadTypes _loadType;
 
-        public ConstantLoad_Tests(LoadTypes type)
+        public ConstantLoad_Tests_T(LoadTypes type)
         {
             _loadType = type;
         }
@@ -33,7 +37,7 @@ namespace KarambaCommon.Tests.Loads
             };
 
             // Act
-            var load = CreateTestLoad(args);
+            DistributedLoad load = CreateTestLoad(args);
 
             // Assert
             Assert.That(args.Direction.Length, Is.Not.EqualTo(1));
@@ -55,7 +59,7 @@ namespace KarambaCommon.Tests.Loads
             };
 
             // Act
-            var load = CreateTestLoad(args);
+            DistributedLoad load = CreateTestLoad(args);
 
             // Assert
             Assert.That(load.Positions[0], Is.EqualTo(0.0));
@@ -112,8 +116,8 @@ namespace KarambaCommon.Tests.Loads
             };
 
             // Act
-            var load = CreateTestLoad(args);
-            var boolRes = load.TryGetValue(0.5, out var outValue, out bool _);
+            DistributedLoad load = CreateTestLoad(args);
+            bool boolRes = load.TryGetValue(0.5, out double outValue, out bool _);
 
             // Assert
             Assert.That(boolRes, Is.True);
@@ -136,8 +140,8 @@ namespace KarambaCommon.Tests.Loads
             };
 
             // Act
-            var load = CreateTestLoad(args);
-            var boolRes = load.TryGetValue(0.1, out var outValue, out bool _);
+            DistributedLoad load = CreateTestLoad(args);
+            bool boolRes = load.TryGetValue(0.1, out double outValue, out bool _);
 
             // Assert
             Assert.That(boolRes, Is.False);
@@ -157,18 +161,20 @@ namespace KarambaCommon.Tests.Loads
                 Start = 0.0,
                 End = 1.0,
             };
-            var load = CreateTestLoad(args);
+            DistributedLoad load = CreateTestLoad(args);
             var k3d = new Toolkit();
 
             // Act
             double length = 10;
-            var model = BeamFactory.CreateHingedBeam(length, load, k3d.CroSec.CircularHollow());
-            var febLoads = model.febmodel.element(0).loadCase(0);
+            Karamba.Models.Model model = BeamFactory.CreateHingedBeam(length, load, k3d.CroSec.CircularHollow());
+            ModelBuilderFEB.AddLoadsAndSupports(model, model.lcActivation);
+
+            feb.LoadCaseElement febLoads = model.febmodel.element(0).load_case(0);
 
             // Assert
             Assert.That(febLoads.size(), Is.EqualTo(1));
 
-            var febLoad1 = _loadType is LoadTypes.Force
+            feb.LoadTranslationalLine febLoad1 = _loadType is LoadTypes.Force
                 ? SwigHelper.CastTo<feb.LoadTranslationalLine>(febLoads.load(0), false)
                 : SwigHelper.CastTo<feb.LoadRotationalLine>(febLoads.load(0), false);
             Assert.That(febLoad1.swigCMemOwn, Is.EqualTo(false));

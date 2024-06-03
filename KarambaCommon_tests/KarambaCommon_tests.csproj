@@ -1,297 +1,49 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\NUnit3TestAdapter.4.3.1\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.4.3.1\build\net35\NUnit3TestAdapter.props')" />
-  <Import Project="..\packages\NUnit.3.13.3\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.13.3\build\NUnit.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B0134664-FDA7-42C9-856F-32B681C9952F}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>KarambaCommon_tests</RootNamespace>
-    <AssemblyName>KarambaCommon_tests</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ALL_TESTS</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;ALL_TESTS</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ALL_TESTS, _TEST_CAN_THROW_EXCEPTION</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE;ALL_TESTS</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ALL_TESTS</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;_ALL_TESTS</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseYAK|AnyCPU'">
-    <OutputPath>bin\ReleaseYAK\</OutputPath>
-    <DefineConstants>TRACE;ALL_TESTS</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseYAK|x64'">
-    <OutputPath>bin\x64\ReleaseYAK\</OutputPath>
-    <DefineConstants>TRACE;ALL_TESTS</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseYAK|x86'">
-    <OutputPath>bin\x86\ReleaseYAK\</OutputPath>
-    <DefineConstants>TRACE;_ALL_TESTS</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Castle.Core, Version=5.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Castle.Core.5.1.0\lib\net462\Castle.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="KarambaCommon, Version=2.2.0.16, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\KarambaCommon.2.2.0.144\lib\net48\KarambaCommon.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json.Bson, Version=1.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.Bson.1.0.2\lib\net45\Newtonsoft.Json.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="NSubstitute, Version=4.4.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
-      <HintPath>..\packages\NSubstitute.4.4.0\lib\net46\NSubstitute.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=3.13.3.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.13.3\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="nunitlite, Version=3.13.3.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitLite.3.13.3\lib\net45\nunitlite.dll</HintPath>
-    </Reference>
-    <Reference Include="Piglet, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Piglet.1.5.0\lib\net45\Piglet.dll</HintPath>
-    </Reference>
-    <Reference Include="Rhino3dmIO, Version=7.1.20343.1000, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\lib\net45\Rhino3dmIO.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Algorithms\Buckling_tests.cs" />
-    <Compile Include="Algorithms\Deform_tests.cs" />
-    <Compile Include="Algorithms\NaturalVibes_tests.cs" />
-    <Compile Include="Algorithms\OptiCroSec_tests.cs" />
-    <Compile Include="Algorithms\OptiReinf_tests.cs" />
-    <Compile Include="CrossSections\CroSecProperties.cs" />
-    <Compile Include="CrossSections\CroSecValues.cs" />
-    <Compile Include="CrossSections\DisassembleCroSec.cs" />
-    <Compile Include="Elements\ElementStates\ElementStateCollectionGroup_Tests.cs" />
-    <Compile Include="Elements\ElementStates\ElementStateCollection_Tests.cs" />
-    <Compile Include="Elements\ElementStates\ElementState_Tests.cs" />
-    <Compile Include="Elements\IdentifyBuilderElement_tests.cs" />
-    <Compile Include="Elements\ModelElementStraightLine_Tests.cs" />
-    <Compile Include="Geometry\InfiniteLine_Tests.cs" />
-    <Compile Include="Helpers\BeamFactory.cs" />
-    <Compile Include="Helpers\MeshFactory.cs" />
-    <Compile Include="Helpers\SwigHelper.cs" />
-    <Compile Include="Loads\Beam\Concentrated\ConcentratedLoad_Tests.cs" />
-    <Compile Include="Loads\Beam\Distributed\ConstantLoads_Tests.cs" />
-    <Compile Include="Loads\Beam\Distributed\DistributedLoad_Tests.cs" />
-    <Compile Include="Loads\Beam\Concentrated\GapLoad_Tests.cs" />
-    <Compile Include="Loads\Beam\LoadTypesEnum.cs" />
-    <Compile Include="Models\ModelDisplay_Tests.cs" />
-    <Compile Include="Results\NodeForces_tests.cs" />
-    <Compile Include="Serialization\Json.cs" />
-    <Compile Include="Models\QueryElements_tests.cs" />
-    <Compile Include="Geometry\Mesh3_tests.cs" />
-    <Compile Include="Joints\LineJoint_tests.cs" />
-    <Compile Include="Joints\BeamJoint_tests.cs" />
-    <Compile Include="Loads\LoadCaseCombinator_tests.cs" />
-    <Compile Include="Loads\LoadCaseIndexer_tests.cs" />
-    <Compile Include="Loads\MultipleLoadCases.cs" />
-    <Compile Include="Mesher\MeshHoleRefine.cs" />
-    <Compile Include="Mesher\MeshHoles.cs" />
-    <Compile Include="Mesher\MeshRefine.cs" />
-    <Compile Include="Mesher\MeshRequireVertex.cs" />
-    <Compile Include="Mesher\MeshSquare.cs" />
-    <Compile Include="Mesher\MeshSurface.cs" />
-    <Compile Include="Mesher\MeshSurfaceStatic.cs" />
-    <Compile Include="Models\ExportModel_tests.cs" />
-    <Compile Include="Results\ShellSections\AlgorithmsUtilities_Tests.cs" />
-    <Compile Include="Results\ShellSections\FindSection_Tests_OnClosedMesh.cs" />
-    <Compile Include="Results\ShellSections\FindSection_Tests_OnOpenMesh.cs" />
-    <Compile Include="Results\ShellSections\FindSection_Tests_OtherMeshes.cs" />
-    <Compile Include="Results\ShellSections\GetResult_Tests.cs" />
-    <Compile Include="Results\ShellSections\RetrieverFindSection_Tests_NonPlanarMesh.cs" />
-    <Compile Include="Results\ShellSections\ShellSection_LocalAxesRenderer_Test.cs" />
-    <Compile Include="Results\ShellSections\ShellSection_NumberRenderer_Tests.cs" />
-    <Compile Include="Results\ShellSections\Utilities.cs" />
-    <Compile Include="Serialization\ModelSerialization.cs" />
-    <Compile Include="UnitConversion\InputGeometryUnits_tests.cs" />
-    <Compile Include="Results\ShellSections\ShellSection_MeshRenderer_Tests.cs" />
-    <Compile Include="Utilities\Interpreters\LoadCombiParser_tests.cs" />
-    <Compile Include="Utilities\UnitsConversion\SingleMass_tests.cs" />
-    <Compile Include="Utilities\UnitsConversion\Cantilever_tests.cs" />
-    <Compile Include="Utilities\UnitsConversion\ReadCrossSectionFromTable_tests.cs" />
-    <Compile Include="Serialization\CroSecSerialization.cs" />
-    <Compile Include="Elements\DisassembleElement_tests.cs" />
-    <Compile Include="Elements\OrientateElement_tests.cs" />
-    <Compile Include="Materials\Materials_tests.cs" />
-    <Compile Include="Models\Disassemble_tests.cs" />
-    <Compile Include="Models\ModifyModel_tests.cs" />
-    <Compile Include="Elements\LocalCoordinateSystems_tests.cs" />
-    <Compile Include="Geometry\Vector3_tests.cs" />
-    <Compile Include="Licenses\License_tests.cs" />
-    <Compile Include="Loads\MeshLoad_tests.cs" />
-    <Compile Include="Models\FindSupportNodes_tests.cs" />
-    <Compile Include="Utilities\UnitsConversion\Mass_tests.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Results\ReinforcementStress_tests.cs" />
-    <Compile Include="Utilities\Mappings\MappingDisassembleAssemble.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".editorconfig" />
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PreviewData\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\NSubstitute.Analyzers.CSharp.1.0.15\analyzers\dotnet\cs\NSubstitute.Analyzers.CSharp.dll" />
-    <Analyzer Include="..\packages\NSubstitute.Analyzers.CSharp.1.0.15\analyzers\dotnet\cs\NSubstitute.Analyzers.Shared.dll" />
-    <Analyzer Include="..\packages\NUnit.Analyzers.3.5.0\analyzers\dotnet\cs\nunit.analyzers.dll" />
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Program.vb" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+        <TargetFrameworks>net48;net7.0-windows</TargetFrameworks>
+        <ProjectGuid>{B0134664-FDA7-42C9-856F-32B681C9952F}</ProjectGuid>
+        <OutputType>Exe</OutputType>
+        <AssemblyName>KarambaCommon_tests</AssemblyName>
+        <Product>KarambaCommon_tests</Product>
+        <Copyright>Copyright ©2024</Copyright>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <Platform>x64</Platform>
+        <PlatformTarget Condition="'$(Platform)' == 'x64'">x64</PlatformTarget>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <DefineConstants>ALL_TESTS;TRACE;_TEST_CAN_THROW_EXCEPTION</DefineConstants>
+        <Configurations>Debug;Release;ReleasePRO;ReleaseFREE;ReleaseFULL;ReleaseTRIAL;ReleaseYAK</Configurations>
+        <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+        <!-- Avoid duplicate main funcitons under .NetCore (see https://andrewlock.net/fixing-the-error-program-has-more-than-one-entry-point-defined-for-console-apps-containing-xunit-tests/). -->
+        <GenerateProgramFile>false</GenerateProgramFile>
+        <!-- Avoid language resource folders -->
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\build\net45\Rhino3dmIO.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\build\net45\Rhino3dmIO.Desktop.targets'))" />
-    <Error Condition="!Exists('..\packages\Baseclass.Contrib.Nuget.Output.2.4.4\build\Baseclass.Contrib.Nuget.Output.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Baseclass.Contrib.Nuget.Output.2.4.4\build\Baseclass.Contrib.Nuget.Output.targets'))" />
-    <Error Condition="!Exists('..\packages\NUnit.3.13.3\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.13.3\build\NUnit.props'))" />
-    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.4.3.1\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.4.3.1\build\net35\NUnit3TestAdapter.props'))" />
-  </Target>
-  <Import Project="..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\build\net45\Rhino3dmIO.Desktop.targets" Condition="Exists('..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\build\net45\Rhino3dmIO.Desktop.targets')" />
-  <Import Project="..\packages\Baseclass.Contrib.Nuget.Output.2.4.4\build\Baseclass.Contrib.Nuget.Output.targets" Condition="Exists('..\packages\Baseclass.Contrib.Nuget.Output.2.4.4\build\Baseclass.Contrib.Nuget.Output.targets')" />
+    
+    <PropertyGroup>
+        <NoWarn>1701;1702;CS0612;SA1312;NS2002</NoWarn>
+    </PropertyGroup>
+
+    <!-- Package references. -->
+    <ItemGroup>
+        <PackageReference Include="KarambaCommon" Version="3.1.40531" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+        <PackageReference Include="NSubstitute" Version="5.1.0" />
+        <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NUnit" Version="4.1.0" />
+        <PackageReference Include="NUnit.Analyzers" Version="4.1.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+        <PackageReference Include="NUnitLite" Version="4.1.0" />
+        <PackageReference Include="ObjectDumper.NET" Version="4.1.17" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 </Project>

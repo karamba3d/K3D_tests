@@ -21,10 +21,13 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
-using NUnitLite;
-
 namespace NUnitLite.Tests
 {
+    using NUnitLite;
+
+    /// <summary>
+    /// Boilerplate for tests.
+    /// </summary>
     public static class Program
     {
         /// <summary>

@@ -7,30 +7,38 @@ namespace KarambaCommon.Tests.Elements
     using Karamba.Elements;
     using Karamba.Geometry;
     using Karamba.Utilities;
+    using KarambaCommon;
     using NUnit.Framework;
+    using static Karamba.Utilities.IniConfigData;
 
     [TestFixture]
     public class OrientateElement_tests
     {
+        public OrientateElement_tests()
+        {
+            // IniConfig.UnitSystem = UnitSystem.SI;
+            IniConfig.DefaultUnits();
+        }
+
         [Test]
         public void OrientBeam()
         {
-            var logger = new MessageLogger();
-            var p0 = new Point3(0, 0, 0);
-            var p1 = new Point3(1, 1, 0);
-            var ln = new Line3(p0, p1);
-            var beam_id = "b1";
-            var yOriNew = new Vector3(0, 1, 1);
+            MessageLogger logger = new MessageLogger();
+            Point3 p0 = new Point3(0, 0, 0);
+            Point3 p1 = new Point3(1, 1, 0);
+            Line3 ln = new Line3(p0, p1);
+            string beam_id = "b1";
+            Vector3 yOriNew = new Vector3(0, 1, 1);
 
-            var k3d = new Toolkit();
-            var beamBuilders = k3d.Part.LineToBeam(
+            Toolkit k3d = new Toolkit();
+            List<BuilderBeam> beamBuilders = k3d.Part.LineToBeam(
                 new List<Line3>() { ln },
                 new List<string>() { beam_id },
                 new List<CroSec>(),
                 logger,
                 out _);
             beamBuilders.Add(k3d.Part.OrientateBeam("b1", null, yOriNew));
-            var model = k3d.Model.AssembleModel(
+            Karamba.Models.Model model = k3d.Model.AssembleModel(
                 beamBuilders,
                 null,
                 null,
@@ -45,7 +53,7 @@ namespace KarambaCommon.Tests.Elements
                 out _,
                 out _,
                 out _,
-                out var beams,
+                out List<BuilderBeam> beams,
                 out _,
                 out _,
                 out _,
@@ -53,24 +61,24 @@ namespace KarambaCommon.Tests.Elements
                 out _,
                 out _);
 
-            var yOri = beams[0].Ori.YOri;
-            var diff = (yOri.Value - yOriNew).Length;
+            Vector3? yOri = beams[0].Ori.YOri;
+            double diff = (yOri.Value - yOriNew).Length;
             Assert.That(diff, Is.EqualTo(0).Within(1E-10));
         }
 
         [Test]
         public void OrientShell()
         {
-            var k3d = new Toolkit();
-            var logger = new MessageLogger();
-            var p0 = new Point3(0, 0, 0);
-            var p1 = new Point3(1, 0, 1);
-            var p2 = new Point3(1, 1, 1);
-            var mesh = new Mesh3(new List<Point3>() { p0, p1, p2 }, new List<Face3>() { new Face3(0, 1, 2) });
-            var shells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, null, null, logger, out _);
-            var old_shell = shells[0];
-            var new_shell = (BuilderShell)old_shell.Clone();
-            var ori = new_shell.Ori.Writer;
+            Toolkit k3d = new Toolkit();
+            MessageLogger logger = new MessageLogger();
+            Point3 p0 = new Point3(0, 0, 0);
+            Point3 p1 = new Point3(1, 0, 1);
+            Point3 p2 = new Point3(1, 1, 1);
+            Mesh3 mesh = new Mesh3(new List<Point3>() { p0, p1, p2 }, new List<Face3>() { new Face3(0, 1, 2) });
+            List<BuilderShell> shells = k3d.Part.MeshToShell(new List<Mesh3>() { mesh }, null, null, logger, out _);
+            BuilderShell old_shell = shells[0];
+            BuilderShell new_shell = (BuilderShell)old_shell.Clone();
+            IBuilderElementOrientationWriter ori = new_shell.Ori.Writer;
             ori.XOriList = new List<Vector3> { new Vector3(1, 1, 1) };
             new_shell.Ori = ori.Reader;
 
@@ -81,23 +89,23 @@ namespace KarambaCommon.Tests.Elements
         [Test]
         public void ModifyBeam()
         {
-            var logger = new MessageLogger();
-            var p0 = new Point3(0, 0, 0);
-            var p1 = new Point3(1, 1, 0);
-            var ln = new Line3(p0, p1);
-            var beam_id = "b1";
+            MessageLogger logger = new MessageLogger();
+            Point3 p0 = new Point3(0, 0, 0);
+            Point3 p1 = new Point3(1, 1, 0);
+            Line3 ln = new Line3(p0, p1);
+            string beam_id = "b1";
 
-            var k3d = new Toolkit();
-            var beamBuilders = k3d.Part.LineToBeam(
+            Toolkit k3d = new Toolkit();
+            List<BuilderBeam> beamBuilders = k3d.Part.LineToBeam(
                 new List<Line3>() { ln },
                 new List<string>() { beam_id },
                 new List<CroSec>(),
                 logger,
                 out _);
 
-            var beam = beamBuilders[0];
+            BuilderBeam beam = beamBuilders[0];
             {
-                var ori = beam.Ori.Writer;
+                IBuilderElementOrientationWriter ori = beam.Ori.Writer;
                 ori.XOri = new Vector3(1, 1, 1);
                 ori.ZOri = new Vector3(2, 2, 2);
                 ori.Alpha = 0.1;

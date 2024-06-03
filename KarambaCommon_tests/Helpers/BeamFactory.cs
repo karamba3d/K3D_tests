@@ -1,11 +1,9 @@
-﻿namespace NUnitLite.Tests.Helpers
+﻿namespace KarambaCommon.Tests.Helpers
 {
     using System.Collections.Generic;
     using Karamba.CrossSections;
-    using Karamba.Factories;
     using Karamba.Geometry;
     using Karamba.Loads;
-    using Karamba.Loads.Beam;
     using Karamba.Models;
     using Karamba.Supports;
     using Karamba.Utilities;
@@ -22,10 +20,10 @@
         /// <returns></returns>
         public static Model CreateHingedBeam(double beamLength, List<Load> loads, CroSec croSec)
         {
-            var logger = new MessageLogger();
-            var k3d = new Toolkit();
+            MessageLogger logger = new MessageLogger();
+            Toolkit k3d = new Toolkit();
 
-            var beam = k3d.Part.LineToBeam(
+            List<Karamba.Elements.BuilderBeam> beam = k3d.Part.LineToBeam(
                     line: new Line3(
                             new Point3(0, 0, 0),
                             new Point3(beamLength, 0, 0)),
@@ -34,15 +32,15 @@
                     info: logger,
                     out _);
 
-            var hc0 = k3d.Support.SupportHingedConditions;
-            var hc1 = new List<bool> { false, true, true, true, false, false };
-            var supports = new List<Support>
+            IReadOnlyList<bool> hc0 = k3d.Support.SupportHingedConditions;
+            List<bool> hc1 = new List<bool> { false, true, true, true, false, false };
+            List<Support> supports = new List<Support>
             {
                 k3d.Support.Support(0, hc0),
                 k3d.Support.Support(1, hc1),
             };
 
-            var model = k3d.Model.AssembleModel(
+            Model model = k3d.Model.AssembleModel(
                     beam,
                     supports,
                     loads,
@@ -73,10 +71,10 @@
         /// <returns>Model of a cantilever beam.</returns>
         public static Model CreateCantileverBeam(double beamLength, List<Load> loads, CroSec croSec)
         {
-            var logger = new MessageLogger();
-            var k3d = new Toolkit();
+            MessageLogger logger = new MessageLogger();
+            Toolkit k3d = new Toolkit();
 
-            var beam = k3d.Part.LineToBeam(
+            List<Karamba.Elements.BuilderBeam> beam = k3d.Part.LineToBeam(
                 line: new Line3(
                     new Point3(0, 0, 0),
                     new Point3(beamLength, 0, 0)),
@@ -85,12 +83,12 @@
                 info: logger,
                 out _);
 
-            var supports = new List<Support>
+            List<Support> supports = new List<Support>
             {
                 k3d.Support.Support(0, k3d.Support.SupportFixedConditions),
             };
 
-            var model = k3d.Model.AssembleModel(
+            Model model = k3d.Model.AssembleModel(
                 beam,
                 supports,
                 loads,
@@ -121,10 +119,10 @@
         /// <returns>Model of a cantilever beam.</returns>
         public static Model CreateFixedFixedBeam(double beamLength, List<Load> loads, CroSec croSec)
         {
-            var logger = new MessageLogger();
-            var k3d = new Toolkit();
+            MessageLogger logger = new MessageLogger();
+            Toolkit k3d = new Toolkit();
 
-            var beam = k3d.Part.LineToBeam(
+            List<Karamba.Elements.BuilderBeam> beam = k3d.Part.LineToBeam(
                 line: new Line3(
                     new Point3(0, 0, 0),
                     new Point3(beamLength, 0, 0)),
@@ -133,13 +131,13 @@
                 info: logger,
                 out _);
 
-            var supports = new List<Support>
+            List<Support> supports = new List<Support>
             {
                 k3d.Support.Support(0, k3d.Support.SupportFixedConditions),
                 k3d.Support.Support(1, k3d.Support.SupportFixedConditions),
             };
 
-            var model = k3d.Model.AssembleModel(
+            Model model = k3d.Model.AssembleModel(
                 beam,
                 supports,
                 loads,

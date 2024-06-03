@@ -8,6 +8,7 @@ namespace KarambaCommon.Tests.Serialization
     using Karamba.Elements;
     using Karamba.Geometry;
     using Karamba.Materials;
+    using Karamba.Models;
     using Karamba.Supports;
     using Karamba.Utilities;
     using Newtonsoft.Json;
@@ -22,21 +23,40 @@ namespace KarambaCommon.Tests.Serialization
         public void JsonSerialization_MiscClasses()
         {
             var extListDouble = new ExtendedList<double>(0);
-            var extListDoubleJson = JsonConvert.SerializeObject(extListDouble);
-            var extListDoubleDser = JsonConvert.DeserializeObject<ExtendedList<double>>(extListDoubleJson);
+            string extListDoubleJson = JsonConvert.SerializeObject(extListDouble);
+            ExtendedList<double> extListDoubleDser =
+                JsonConvert.DeserializeObject<ExtendedList<double>>(extListDoubleJson);
 
             var vec = new Vector3(1, 2, 3);
-            var vecJson = JsonConvert.SerializeObject(vec);
-            var vecDser = JsonConvert.DeserializeObject<Vector3>(vecJson);
+            string vecJson = JsonConvert.SerializeObject(vec);
+            Vector3 vecDser = JsonConvert.DeserializeObject<Vector3>(vecJson);
             Assert.That(vecDser.Length, Is.EqualTo(vec.Length).Within(1e-10));
+        }
+
+        [Test]
+        public void JsonSerialization_Interval3l()
+        {
+            var json_settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto,
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+            };
+
+            var interval = new Interval3(1, 2);
+            string intervalJson = JsonConvert.SerializeObject(interval, Formatting.Indented, json_settings);
+
+            // File.WriteAllText("model.json", model_json);
+            var intervalDser = JsonConvert.DeserializeObject<Interval3>(intervalJson, json_settings);
+
+            Assert.That(intervalDser.T0, Is.EqualTo(interval.T0));
         }
 
         [Test]
         public void JsonSerialization_Model()
         {
             var k3d = new Toolkit();
-            var e = 70000;
-            var gamma = 1.0;
+            int e = 70000;
+            double gamma = 1.0;
             var unit_material = new FemMaterial_Isotrop(
                 "unit",
                 "unit",
@@ -48,29 +68,30 @@ namespace KarambaCommon.Tests.Serialization
                 -1.0,
                 FemMaterial.FlowHypothesis.mises,
                 1.0,
-                null);
-            var b = 6; // cm
-            var t = 3; // cm
-            var unit_crosec = k3d.CroSec.Box(b, b, b, t, t, t, 0, 0, unit_material);
+                null,
+                out string _);
+            int b = 6; // cm
+            int t = 3; // cm
+            Karamba.CrossSections.CroSec_Box unit_crosec = k3d.CroSec.Box(b, b, b, t, t, t, 0, 0, unit_material);
             unit_crosec.Az = 1e10; // make cross section rigid in shear
 
             var elems = new List<BuilderBeam>() { k3d.Part.IndexToBeam(0, 1, "A", unit_crosec), };
 
-            var l = 10.0; // m
+            double l = 10.0; // m
             var points = new List<Point3> { new Point3(), new Point3(l, 0, 0) };
             var supports = new List<Support> { k3d.Support.Support(0, k3d.Support.SupportFixedConditions) };
-            var fz = 1; // kN
+            int fz = 1; // kN
             var loads = new List<Load> { k3d.Load.PointLoad(points[1], new Vector3(0, 0, -fz)), };
 
-            var model = k3d.Model.AssembleModel(
+            Karamba.Models.Model model = k3d.Model.AssembleModel(
                 elems,
                 supports,
                 loads,
-                out var info,
-                out var mass,
-                out var cog,
-                out var msg,
-                out var runtimeWarning,
+                out string _,    // info
+                out double _,    // mass
+                out Point3 _,    // cog
+                out string _,    // msg
+                out bool _,      // runtimeWarning
                 new List<Joint>(),
                 points);
 
@@ -84,36 +105,36 @@ namespace KarambaCommon.Tests.Serialization
 
             // node serialization
             //---
-            var node_json = JsonConvert.SerializeObject(model.nodes[0]);
+            string node_json = JsonConvert.SerializeObject(model.nodes[0]);
 
             // File.WriteAllText("node.json", node_json);
-            var node_dser = JsonConvert.DeserializeObject<Karamba.Nodes.Node>(node_json);
-            Assert.IsTrue(model.nodes[0].ToString() == node_dser.ToString());
+            Karamba.Nodes.Node node_dser = JsonConvert.DeserializeObject<Karamba.Nodes.Node>(node_json);
+            Assert.That(node_dser.ToString(), Is.EqualTo(model.nodes[0].ToString()));
 
             // element serialization
             //---
             // var elements_output = JsonConvert.SerializeObject(model.elems);
-            var elements_json = JsonConvert.SerializeObject(model.elems, Formatting.Indented, json_settings);
+            string elements_json = JsonConvert.SerializeObject(model.elems, Formatting.Indented, json_settings);
 
             // File.WriteAllText("elements.json", elements_json);
-            var elements_dser = JsonConvert.DeserializeObject<List<ModelElement>>(elements_json, json_settings);
-            Assert.IsTrue(model.elems[0].ToString() == elements_dser[0].ToString());
+            List<ModelElement> elements_dser = JsonConvert.DeserializeObject<List<ModelElement>>(elements_json, json_settings);
+            Assert.That(elements_dser[0].ToString(), Is.EqualTo(model.elems[0].ToString()));
 
             // model serialization
             //---
-            var model_json = JsonConvert.SerializeObject(model, Formatting.Indented, json_settings);
+            string model_json = JsonConvert.SerializeObject(model, Formatting.Indented, json_settings);
 
             // File.WriteAllText("model.json", model_json);
-            var model_dser = JsonConvert.DeserializeObject<Karamba.Models.Model>(model_json, json_settings);
+            Model model_dser = JsonConvert.DeserializeObject<Model>(model_json, json_settings);
 
             // calculate Th.I response
-            var model_calc = k3d.Algorithms.AnalyzeThI(
+            Model _ = k3d.Algorithms.AnalyzeThI(  // model_calc
                 model_dser,
-                out var max_disp,
-                out var out_g,
-                out var out_comp,
-                out var message);
-            var max_disp_expected = fz * l * l * l / (3 * e * unit_crosec.Iyy);
+                out IReadOnlyList<double> max_disp,
+                out IReadOnlyList<double> _, // out_g
+                out IReadOnlyList<double> _, // out_comp
+                out string _);               // message
+            double max_disp_expected = fz * l * l * l / (3 * e * unit_crosec.Iyy);
             Assert.That(max_disp_expected, Is.EqualTo(max_disp[0]).Within(1E-6));
         }
 
@@ -121,7 +142,7 @@ namespace KarambaCommon.Tests.Serialization
         public void BinarySerialization_Model()
         {
             var model = new Karamba.Models.Model();
-            model.in_materials.Add(
+            model.materials.Add(
                 new FemMaterial_Isotrop(
                     "test",
                     string.Empty,
@@ -133,23 +154,24 @@ namespace KarambaCommon.Tests.Serialization
                     -6,
                     FemMaterial.FlowHypothesis.mises,
                     8,
-                    null));
+                    null,
+                    out string warning));
             model.initMaterialCroSecLists();
 
-            var formatter = ModelSerializer.GetInstance().Formatter;
+            System.Runtime.Serialization.IFormatter formatter = ModelSerializer.GetInstance().Formatter;
             var stream = new MemoryStream();
             formatter.Serialize(stream, model);
-            var data = Convert.ToBase64String(stream.ToArray());
+            string data = Convert.ToBase64String(stream.ToArray());
             var streamDser = new MemoryStream(Convert.FromBase64String(data));
-            var modelDser = (Karamba.Models.Model)formatter.Deserialize(streamDser);
+            var modelDser = (Model)formatter.Deserialize(streamDser);
         }
 
         [Test]
         public void JsonSerialization_ReferencePreservingModel()
         {
             var k3d = new Toolkit();
-            var e = 70000;
-            var gamma = 1.0;
+            int e = 70000;
+            double gamma = 1.0;
             var unit_material = new FemMaterial_Isotrop(
                 "unit",
                 "unit",
@@ -161,10 +183,11 @@ namespace KarambaCommon.Tests.Serialization
                 -1.0,
                 FemMaterial.FlowHypothesis.mises,
                 1.0,
-                null);
-            var b = 6; // cm
-            var t = 3; // cm
-            var unit_crosec = k3d.CroSec.Box(b, b, b, t, t, t, 0, 0, unit_material);
+                null,
+                out string _);
+            int b = 6; // cm
+            int t = 3; // cm
+            Karamba.CrossSections.CroSec_Box unit_crosec = k3d.CroSec.Box(b, b, b, t, t, t, 0, 0, unit_material);
             unit_crosec.Az = 1e10; // make cross section rigid in shear
 
             var elems = new List<BuilderBeam>()
@@ -173,21 +196,21 @@ namespace KarambaCommon.Tests.Serialization
                 k3d.Part.IndexToBeam(1, 2, "A", unit_crosec),
             };
 
-            var l = 10.0; // m
+            double l = 10.0; // m
             var points = new List<Point3> { new Point3(), new Point3(0.5 * l, 0, 0), new Point3(l, 0, 0) };
             var supports = new List<Support> { k3d.Support.Support(0, k3d.Support.SupportFixedConditions) };
-            var fz = 1; // kN
+            int fz = 1; // kN
             var loads = new List<Load> { k3d.Load.PointLoad(points[1], new Vector3(0, 0, -fz)), };
 
-            var model = k3d.Model.AssembleModel(
+            Karamba.Models.Model model = k3d.Model.AssembleModel(
                 elems,
                 supports,
                 loads,
-                out var info,
-                out var mass,
-                out var cog,
-                out var msg,
-                out var runtimeWarning,
+                out string info,
+                out double mass,
+                out Point3 cog,
+                out string msg,
+                out bool runtimeWarning,
                 new List<Joint>(),
                 points);
 
@@ -203,11 +226,22 @@ namespace KarambaCommon.Tests.Serialization
 
             // element serialization
             //---
-            var elements_json = JsonConvert.SerializeObject(model.elems, Formatting.Indented, jsonSettings);
-            var elements_dser = JsonConvert.DeserializeObject<List<ModelElement>>(elements_json, jsonSettings);
-            var material1 = elements_dser[0].crosec.material;
-            var material2 = elements_dser[1].crosec.material;
-            Assert.IsTrue(material1 == material2);
+            string elements_json = JsonConvert.SerializeObject(model.elems, Formatting.Indented, jsonSettings);
+            List<ModelElement> elements_dser = JsonConvert.DeserializeObject<List<ModelElement>>(elements_json, jsonSettings);
+            FemMaterial material1 = elements_dser[0].crosec.material;
+            FemMaterial material2 = elements_dser[1].crosec.material;
+            Assert.That(material1, Is.EqualTo(material2));
+        }
+
+        [Test]
+        public void JsonAssemblyTest()
+        {
+            var test = new JsonSerializerSettings();
+
+            var assembly = test.GetType().Assembly;
+
+            var test1 = assembly.CodeBase;
+            var test2 = assembly.FullName;
         }
     }
 }
